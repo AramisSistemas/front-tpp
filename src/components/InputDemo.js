@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import { AutoComplete } from 'primereact/autocomplete';
+import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
+import { Checkbox } from 'primereact/checkbox';
+import { Chips } from 'primereact/chips';
+import { ColorPicker } from 'primereact/colorpicker';
+import { Dropdown } from 'primereact/dropdown';
+import { InputNumber } from 'primereact/inputnumber';
+import { InputSwitch } from 'primereact/inputswitch';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { AutoComplete } from 'primereact/autocomplete';
-import { Calendar } from 'primereact/calendar';
-import { Chips } from 'primereact/chips';
-import { Slider } from 'primereact/slider';
 import { Knob } from 'primereact/knob';
-import { Rating } from 'primereact/rating';
-import { ColorPicker } from 'primereact/colorpicker';
-import { RadioButton } from 'primereact/radiobutton';
-import { Checkbox } from 'primereact/checkbox';
-import { InputSwitch } from 'primereact/inputswitch';
 import { ListBox } from 'primereact/listbox';
-import { Dropdown } from 'primereact/dropdown';
-import { ToggleButton } from 'primereact/togglebutton';
 import { MultiSelect } from 'primereact/multiselect';
-import { TreeSelect } from 'primereact/treeselect';
+import { RadioButton } from 'primereact/radiobutton';
+import { Rating } from 'primereact/rating';
 import { SelectButton } from 'primereact/selectbutton';
-import { Button } from 'primereact/button';
-import { InputNumber } from 'primereact/inputnumber';
+import { Slider } from 'primereact/slider';
+import { ToggleButton } from 'primereact/togglebutton';
+import { TreeSelect } from 'primereact/treeselect';
+import React, { useEffect, useState } from 'react';
 import { CountryService } from '../service/CountryService';
 import { NodeService } from '../service/NodeService';
 
@@ -131,7 +131,7 @@ export const InputDemo = () => {
         if (option) {
             return (
                 <div className="inline-flex align-items-center py-1 px-2 bg-primary text-primary border-round mr-2">
-                    <span className={`mr-2 flag flag-${option.code.toLowerCase()}`} style={{ width: '18px', height: '12px' }}/>
+                    <span className={`mr-2 flag flag-${option.code.toLowerCase()}`} style={{ width: '18px', height: '12px' }} />
                     <span>{option.name}</span>
                 </div>
             );

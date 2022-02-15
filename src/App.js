@@ -8,6 +8,12 @@ import { AppFooter } from './AppFooter';
 import { AppMenu } from './AppMenu';
 import { AppConfig } from './AppConfig';
 
+//paginas de TPP
+
+import Operations from './pages/Operations';
+
+
+//componentes del DEmo
 import Dashboard from './components/Dashboard';
 import ButtonDemo from './components/ButtonDemo';
 import ChartDemo from './components/ChartDemo';
@@ -160,6 +166,12 @@ const App = () => {
             label: 'Home',
             items: [{
                 label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/'
+            }]
+        },
+        {
+            label: 'Operaciones',
+            items: [{
+                label: 'Operaciones', icon: 'pi pi-fw pi-cog', to: '/operations'
             }]
         },
         {
@@ -319,6 +331,8 @@ const App = () => {
                     <Route path="/crud" component={Crud} />
                     <Route path="/empty" component={EmptyPage} />
                     <Route path="/documentation" component={Documentation} />
+                    {/*  De TPP */}
+                    <Route path="/operations" component={Operations} />
                 </div>
 
                 <AppFooter layoutColorMode={layoutColorMode} />

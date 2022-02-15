@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { classNames } from 'primereact/utils';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
-import { DataTable } from 'primereact/datatable';
+import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
 import { Column } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
-import { Button } from 'primereact/button';
-import { ProgressBar } from 'primereact/progressbar';
-import { Calendar } from 'primereact/calendar';
 import { MultiSelect } from 'primereact/multiselect';
-import { Slider } from 'primereact/slider';
-import { TriStateCheckbox } from 'primereact/tristatecheckbox';
-import { ToggleButton } from 'primereact/togglebutton';
+import { ProgressBar } from 'primereact/progressbar';
 import { Rating } from 'primereact/rating';
+import { Slider } from 'primereact/slider';
+import { ToggleButton } from 'primereact/togglebutton';
+import { TriStateCheckbox } from 'primereact/tristatecheckbox';
+import { classNames } from 'primereact/utils';
+import React, { useEffect, useState } from 'react';
 import { CustomerService } from '../service/CustomerService';
 import { ProductService } from '../service/ProductService';
 
@@ -201,6 +201,7 @@ const TableDemo = () => {
         products.forEach(p => _expandedRows[`${p.id}`] = true);
 
         setExpandedRows(_expandedRows);
+        products.forEach(p => console.log(true ? p.id : 'nop'));
     }
 
     const collapseAll = () => {
@@ -337,7 +338,7 @@ const TableDemo = () => {
             <div className="col-12">
                 <div className="card">
                     <h5>Row Expand</h5>
-                    <DataTable value={products} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)} responsiveLayout="scroll"
+                    <DataTable value={products} expandedRows={expandedRows} onRowToggle={  (e) => setExpandedRows(e.data) } responsiveLayout="scroll"
                         rowExpansionTemplate={rowExpansionTemplate} dataKey="id" header={header}>
                         <Column expander style={{ width: '3em' }} />
                         <Column field="name" header="Name" sortable />

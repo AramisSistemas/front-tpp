@@ -28,7 +28,7 @@ const TreeDemo = () => {
                 <div className="card">
                     <h5>TreeTable</h5>
                     <TreeTable value={treeTableNodes} header="FileSystem" selectionMode="checkbox" selectionKeys={selectedTreeTableNodeKeys} onSelectionChange={(e) => setSelectedTreeTableNodeKeys(e.value)}>
-                        <Column field="name" header="Name" expander/>
+                        <Column field="id" header="Name" expander/>
                         <Column field="size" header="Size"/>
                         <Column field="type" header="Type"/>
                     </TreeTable>
