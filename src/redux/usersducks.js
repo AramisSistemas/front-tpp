@@ -71,11 +71,10 @@ export const userisactive = () => (dispatch) => {
     }
 }
 
-export const logout = () => (dispatch) => {
-    //  auth.signOut()
-    localStorage.removeItem('token') 
+export const logout = () => (dispatch) => { 
+    localStorage.removeItem('token') ; 
     dispatch({
-        type: CERRAR_SESION
+        type: CERRAR_SESION,
     });
     dispatch(messageService(true,  'Hasta la Próxima',200));
 }

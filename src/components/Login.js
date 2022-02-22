@@ -2,30 +2,30 @@ import React, { useState, Fragment } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
-import { useForm } from 'react-hook-form'; 
+import { useForm } from 'react-hook-form';
 
-import { useDispatch} from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { login } from '../redux/usersducks'
 
 
 const Login = () => {
 
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm();
     const [usermodel, setusermodel] = useState([]);
     const [displaylogin, setdisplaylogin] = useState(false);
-  
+
     const dispatch = useDispatch()
 
-    const onSubmit = (data, e) => {
+    const onSubmit = (data) => {
         setusermodel([
             ...usermodel,
             data
         ])
         dispatch(login(data));
         // limpiar campos
-        e.target.reset();
+        reset({ username: '', password: '' });
         setdisplaylogin(false);
-    } 
+    }
     return <>
         <button className="p-link layout-topbar-button" onClick={() => setdisplaylogin(true)}>
             <i className="pi pi-user" />
@@ -54,7 +54,7 @@ const Login = () => {
                     </div>
                 </form>
             </Fragment>
-        </Dialog> 
+        </Dialog>
     </>
 };
 

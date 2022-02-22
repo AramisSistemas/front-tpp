@@ -3,13 +3,15 @@ import { messageService } from './messagesducks';
 import { logout } from './usersducks';
 
 const dataInicial = {
-    loading: false
+    loading: false,
+    datosManiobra: null
 }
 
 // types
 const LOADING = 'LOADING'
 const MANIOBRA_OK = 'MANIOBRA_OK'
-const MANIOBRA_FAIL = 'MANIOBRA_FAIL'
+const MANIOBRA_FAIL = 'MANIOBRA_FAIL' 
+const SET_DATOS_MANIOBRA = 'SET_DATOS_MANIOBRA'
 
 // reducer
 export default function operationsReducer(state = dataInicial, action) {
@@ -18,6 +20,8 @@ export default function operationsReducer(state = dataInicial, action) {
             return { ...state, loading: true }
         case MANIOBRA_OK:
             return { ...state, loading: false }
+        case SET_DATOS_MANIOBRA:
+            return { ...state, loading: false, datosManiobra: action.payload.datosManiobra }
         case MANIOBRA_FAIL:
             return { ...dataInicial }
         default:
@@ -87,4 +91,34 @@ export const actualizarManiobra = (data) => async (dispatch) => {
                 dispatch(logout);
             }
         });
+}
+
+export const eliminarManiobra = (data) => async (dispatch) => {
+
+    await request.delete('Operations/DeleteManiobraOperacion/?id=' + data)
+        .then(function (response) {
+            dispatch({
+                type: MANIOBRA_OK
+            })
+            dispatch(messageService(true, 'Maniobra Eliminada ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: MANIOBRA_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+            if (error.response.status === 401) {
+                dispatch(logout);
+            }
+        });
+}
+
+export const pasarDatosManiobra = (rowData) => (dispatch) => {
+    dispatch({
+        type: SET_DATOS_MANIOBRA,
+        payload: {
+            datosManiobra: rowData
+        }
+    })
+
 } 
