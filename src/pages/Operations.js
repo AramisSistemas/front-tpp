@@ -3,26 +3,38 @@ import { Calendar } from 'primereact/calendar';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
+import { Divider } from 'primereact/divider';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputSwitch } from 'primereact/inputswitch';
 import { InputText } from 'primereact/inputtext';
+import { ProgressBar } from 'primereact/progressbar';
+import { Sidebar } from 'primereact/sidebar';
 import { Skeleton } from 'primereact/skeleton';
 import { SplitButton } from 'primereact/splitbutton';
+import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
-import { default as React, Fragment, useEffect, useState } from 'react';
+import { default as React, Fragment, useEffect, useRef, useState } from 'react';
 import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
+import { liquidacionesAdd } from '../redux/liquidacionesducks';
 import { messageService } from '../redux/messagesducks';
-import { actualizarManiobra, ingresarManiobra } from '../redux/operationsducks';
+import { actualizarManiobra, eliminarManiobra, ingresarManiobra } from '../redux/operationsducks';
+import { EmpleadoService } from '../service/EmpleadoService';
 import { OperationService } from '../service/OperationService';
 
 const Operations = () => {
     const dispatch = useDispatch();
 
     const operationService = new OperationService();
+    const empleadoService = new EmpleadoService();
 
     const activo = useSelector(store => store.users.activo);
+
+    const message = useSelector(store => store.messages.message)
+    const status = useSelector(store => store.messages.status)
+    const toast = useRef();
+
 
     //genericas
     const [turnos, setTurnos] = useState({ value: null, label: null });
@@ -36,11 +48,22 @@ const Operations = () => {
     //FORMULARIO PARA MANIOBRAS
     const [displayIngresaManiobra, setDisplayIngresaManiobra] = useState(false);
     const [displayActualizaManiobra, setDisplayActualizaManiobra] = useState(false);
+    const [displaymenuManiobra, setDisplaymenuManiobra] = useState(false);
     const [datosOperacion, setDatosOperacion] = useState(null);
     const [datosManiobra, setDatosManiobra] = useState([]);
     const [turnomaniobra, setTurnomaniobra] = useState(null);
     const [fechamaniobra, setFechamaniobra] = useState(null);
     const [maniobraOperacion, setManiobraOperacion] = useState(null);
+
+    //composicion
+    const [composicionManiobra, setComposicion] = useState([]);
+    const [liquidaciones, setLiquidaciones] = useState([])
+    const [liquidacionesVisibles, setLiquidacionesVisibles] = useState(false)
+    const [empleados, setEmpleados] = useState([]);
+    const [empleadosVisibles, setEmpleadosVisibles] = useState(false);
+    const [selectedEmpleados, setSelectedEmpleados] = useState([])
+    const [empleadosFilter, setEmpleadosFilter] = useState(null);
+    const dt = useRef(null);
 
     const [expandedRows, setExpandedRows] = useState(null);
 
@@ -64,24 +87,77 @@ const Operations = () => {
         },
     ];
 
-    const fetchOperations = () => { 
-            setLoadingOp(true)
-            operationService.getAll().then(data => { setOperations(data) }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
-            //      if (operations.length > 0) {
-            operationService.getManiobrasActivas(false).then(data => { setManiobrasActivas(data) });
-            //  }    
-            setLoadingOp(false);       
+    const abreMenuManiobra = async (rowData) => {
+        await fetchComposicion(rowData.id).then(
+            fetchEmpleados(true)).then
+            (setDisplaymenuManiobra(true));
+    };
+
+    const abreLiquidaciones = async (rowData) => {
+        await fetchLiquidacionesByManiobra(rowData.operacion, rowData.idPuesto).then(
+            setLiquidacionesVisibles(true));
+    }
+
+    const fetchEmpleados = async (activos) => {
+        await empleadoService.getAll(activos).then(data => { setEmpleados(data) }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)))
+    }
+
+    const fetchLiquidacionesByManiobra = async (id, puesto) => {
+        await operationService.GetLiquidacionByManiobra(id, puesto).then(data => { setLiquidaciones(data) }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
+    }
+
+    const fetchComposicion = async (id) => {
+        await operationService.getComposicionByManiobra(id).then(data => { setComposicion(data) }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
+    }
+
+    const fetchOperations = async () => {
+        setLoadingOp(true)
+        await operationService.getAll().then(data => { setOperations(data) }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
+        await operationService.getManiobrasActivas(false).then(data => { setManiobrasActivas(data) });
+        setLoadingOp(false);
+    }
+
+    const actualizarTablas = () => {
+        let _expandedRows = expandedRows;
+        collapseAll();
+        fetchOperations();
+        setExpandedRows(_expandedRows);
+    }
+
+    const actualizarLiquidaciones = (op, puesto) => {
+        fetchLiquidacionesByManiobra(op, puesto).then(
+            fetchComposicion(op));
+        setSelectedEmpleados(null);
+        setEmpleadosVisibles(false);
+    }
+
+    const onSubmitLiquidaciones = (op, puesto) => {
+        try {
+            let lm = []
+            selectedEmpleados.forEach(e =>
+                lm.push({
+                    Empleado: e.id,
+                    Operacion: op,
+                    Puesto: puesto,
+                    Abierta: true,
+                    Pagado: false,
+                    Operador: ''
+                }));
+            var json = JSON.stringify(lm);
+            dispatch(liquidacionesAdd(json)).then(
+                actualizarLiquidaciones(op, puesto));
+        } catch (error) {
+            messageService(true, error.message, 500)
+        }
     }
 
     const onSubmitManiobra = (e) => {
         var options = { year: 'numeric', month: 'numeric', day: 'numeric' };
         e.preventDefault()
-        dispatch(ingresarManiobra(maniobraOperacion, turnomaniobra, fechamaniobra.toLocaleDateString("es-ES", options), datosOperacion.id)).then(
-            fetchOperations()
-        );
-        // limpiar campos
+        dispatch(ingresarManiobra(maniobraOperacion, turnomaniobra, fechamaniobra.toLocaleDateString("es-ES", options), datosOperacion.id));
         e.target.reset();
         setDisplayIngresaManiobra(false);
+        actualizarTablas();
     }
 
     const onSubmitActualizaManiobra = (e) => {
@@ -89,8 +165,13 @@ const Operations = () => {
         dispatch(actualizarManiobra(datosManiobra));
         // limpiar campos
         e.target.reset();
-        fetchOperations();
         setDisplayActualizaManiobra(false);
+        actualizarTablas();
+    }
+
+    const onSubmitEliminarManiobra = (id) => {
+        dispatch(eliminarManiobra(id));
+        actualizarTablas();
     }
 
     const inicioBodyTemplate = (rowData) => {
@@ -133,15 +214,51 @@ const Operations = () => {
         return (
             <div className="card">
                 <Button icon="pi pi-check" className="p-button-rounded p-button-text mr-2 mb-2" onClick={() => { establecerDatosManiobra(rowData) }} />
-                <Button icon="pi pi-user" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" />
-                <Button icon="pi pi-times" className="p-button-rounded p-button-danger p-button-text mr-2 mb-2" />
-
+                <Button icon="pi pi-user" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={() => abreMenuManiobra(rowData)} />
+                <Button icon="pi pi-times" className="p-button-rounded p-button-danger p-button-text mr-2 mb-2" onClick={() => { onSubmitEliminarManiobra(rowData.id) }} />
             </div>
         )
     }
 
     const actionOperationBodyTemplate = (rowData) => {
         return <SplitButton icon="pi pi-cog" model={operacionesItems} menuStyle={{ width: '12rem' }} className="p-button-success mr-2 mb-2" onShow={() => establecerDatosOperacion(rowData)} ></SplitButton>;
+    }
+
+    const progressbarTemplate = (rowData) => {
+        return <ProgressBar color={rowData.liquidadas / rowData.cantidad * 100 <= 50 ? 'yellow' :
+            rowData.liquidadas / rowData.cantidad * 100 > 50 && rowData.liquidadas / rowData.cantidad * 100 <= 100 ? 'green' :
+                'red'
+        } value={Math.round(rowData.liquidadas / rowData.cantidad * 100)} />
+    }
+
+    const accionComposicionTemplate = (rowData) => {
+        return (
+            <Button icon="pi pi-user" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={() => abreLiquidaciones(rowData)} />
+        )
+    }
+
+    const empleadosActionTemplate = (data) => {
+        return (
+            <Button icon="pi pi-arrow-circle-right" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={() => console.log(data)} />
+        )
+    }
+
+    const liquidacionesActionTemplate = (data) => {
+        return (
+            <>
+                <Button icon="pi pi-arrow-circle-right" className="p-button-rounded p-button-success p-button-outlined mr-2 mb-2" onClick={() => console.log(data)} />
+                <Button icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-outlined mr-2 mb-2" onClick={() => console.log(data)} />
+            </>
+        )
+    }
+
+    const liquidacionesSiguienteActionTemplate = (data) => {
+        return (
+            <>
+                <Button icon="pi pi-arrow-circle-left" className="p-button-rounded p-button-success p-button-outlined mr-2 mb-2" onClick={() => console.log(data)} />
+                <Button icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-outlined mr-2 mb-2" onClick={() => console.log(data)} />
+            </>
+        )
     }
 
     const establecerDatosOperacion = (dataRow) => {
@@ -175,16 +292,46 @@ const Operations = () => {
         setExpandedRows(null);
     }
 
-    useEffect(() => {
-     if(activo)
-      fetchOperations();
-
-    }, [activo, dispatch])
-
     const header = (
         <div className="table-header-container">
-            <Button icon="pi pi-plus" label="Expand All" onClick={expandAll} className="mr-2 mb-2" />
-            <Button icon="pi pi-minus" label="Collapse All" onClick={collapseAll} className="mb-2" />
+            <Button icon="pi pi-plus" label="Ver Maniobras" onClick={expandAll} className="mr-2 mb-2" />
+            <Button icon="pi pi-minus" label="Ocultar Maniobras" onClick={collapseAll} className="mb-2" />
+        </div>
+    );
+
+    const headerTurnoActual = (
+        <div className="table-header-container">
+            <label>{liquidaciones.length > 0 ? "Turno Actual " + liquidaciones.filter(l => l.tipo === "Actual").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Actual").map(m => m.horario)[0] : 'Sin Datos'} </label>
+            <Button icon="pi pi-user-plus" className="p-button-rounded p-button-outlined p-button-success mr-2 mb-2" onClick={() => setEmpleadosVisibles(true)} />
+            <Button icon="pi pi-angle-double-right" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={(e) => console.log(e.target)} />
+            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => setEmpleadosVisibles(true)} />
+        </div>
+    );
+
+    const headerTurnoSiguiente = (
+        <div className="table-header-container">
+            <label>{liquidaciones.length > 0 ? "Turno Siguiente " + liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.horario)[0] : 'Sin Datos'} </label>
+            <Button icon="pi pi-angle-double-left" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={(e) => console.log(e.target)} />
+            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => setEmpleadosVisibles(true)} />
+        </div>
+    );
+
+    const headerTurnoAnterior = (
+        <div className="table-header-container">
+            <label>{liquidaciones.length > 0 ? "Turno Anterior " + liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.horario)[0] : 'Sin Datos'} </label>
+            <Button icon="pi pi-angle-double-right" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={(e) => console.log(e.target)} />
+            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => setEmpleadosVisibles(true)} />
+        </div>
+    );
+
+    const headerEmpleados = (
+        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <h5 className="m-0">Empleados</h5>
+            <Button icon="pi pi-angle-double-right" onClick={() => onSubmitLiquidaciones(liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0])} label={"Liquidar Los Seleccionados"} className="p-button-rounded p-button-success mr-2 mb-2" />
+            <span className="block mt-2 md:mt-0 p-input-icon-left">
+                <i className="pi pi-search" />
+                <InputText type="search" onInput={(e) => setEmpleadosFilter(e.target.value)} placeholder="Buscar..." />
+            </span>
         </div>
     );
 
@@ -241,15 +388,78 @@ const Operations = () => {
 
                 </Dialog>
                     : <></>}
+                <Dialog className="card p-fluid" header="Puestos de la Operacion" style={{ width: '70vw' }} visible={displaymenuManiobra} modal onHide={() => setDisplaymenuManiobra(false)}>
+                    <DataTable value={composicionManiobra} responsiveLayout="scroll"  >
+                        <Column field="puesto" header="Puesto" sortable></Column>
+                        <Column field="cantidad" header="Mínima" sortable></Column>
+                        <Column field="liquidadas" header="Liquidadas" sortable></Column>
+                        <Column field="progreso" header="Progreso" body={progressbarTemplate} sortable></Column>
+                        <Column headerStyle={{ width: '4rem' }} body={accionComposicionTemplate}></Column>
+                    </DataTable>
+
+                </Dialog>
+                <Sidebar visible={liquidacionesVisibles} header={"Liquidacion de jornales"} fullScreen onHide={() => setLiquidacionesVisibles(false)}>
+                    <div className="flex">
+                        <DataTable header={headerTurnoAnterior} value={liquidaciones.filter(m => m.tipo === 'Anterior')} responsiveLayout="scroll"  >
+                            <Column field="nombre" header="Nombre" sortable></Column>
+                            <Column field="empleado" header="Cuil" sortable></Column>
+                            <Column headerStyle={{ width: '4rem' }} body={liquidacionesActionTemplate}></Column>
+                        </DataTable>
+                        <Divider layout="vertical" />
+                        <DataTable header={headerTurnoActual} value={liquidaciones.filter(m => m.tipo === 'Actual')} responsiveLayout="scroll"  >
+                            <Column field="nombre" header="Nombre" sortable></Column>
+                            <Column field="empleado" header="Cuil" sortable></Column>
+                            <Column headerStyle={{ width: '4rem' }} body={liquidacionesActionTemplate}></Column>
+                        </DataTable>
+                        <Divider layout="vertical" />
+                        <DataTable header={headerTurnoSiguiente} value={liquidaciones.filter(m => m.tipo === 'Posterior')} responsiveLayout="scroll"  >
+                            <Column field="nombre" header="Nombre" sortable></Column>
+                            <Column field="empleado" header="Cuil" sortable></Column>
+                            <Column headerStyle={{ width: '4rem' }} body={liquidacionesSiguienteActionTemplate}></Column>
+                        </DataTable>
+                    </div>
+                    <Sidebar visible={empleadosVisibles} position="left" style={{ width: '60em' }} onHide={() => setEmpleadosVisibles(false)}>
+                        <DataTable ref={dt} value={empleados} selection={selectedEmpleados} onSelectionChange={(e) => setSelectedEmpleados(e.value)}
+                            dataKey="id" paginator rows={5} rowsPerPageOptions={[5, 10, 25]} className="datatable-responsive"
+                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} empleados"
+                            globalFilter={empleadosFilter} emptyMessage="Sin Datos." header={headerEmpleados} responsiveLayout="scroll">
+                            <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
+                            <Column field="nombre" header="Nombre" sortable></Column>
+                            <Column field="cuil" header="Cuil" sortable></Column>
+                            <Column field="puestoDetalle" header="Puesto" sortable></Column>
+                            <Column headerStyle={{ width: '4rem' }} body={empleadosActionTemplate}></Column>
+                        </DataTable>
+
+                    </Sidebar>
+                </Sidebar>
             </div >
+
         );
     }
+
+    useEffect(() => {
+        if (activo === true) {
+            fetchOperations();
+            if (message !== '' && message !== null) {
+                switch (status) {
+                    case 200: toast.current.show({ severity: 'success', summary: 'Correcto', detail: message, life: 3000 });
+                        break;
+                    case 400: toast.current.show({ severity: 'warn', summary: 'Verifique', detail: message, life: 3000 });
+                        break;
+                    case 401: toast.current.show({ severity: 'error', summary: 'Autenticacion', detail: message, life: 3000 });
+                        break;
+                    default: toast.current.show({ severity: 'info', summary: 'Atendeme', detail: message, life: 3000 });
+                }
+            }
+        }
+    }, [activo, message, status]);
 
     return (
         activo ? (
             <div className="col-12">
                 <div className="card">
-                    <h5>Row Expand</h5>
+                    <h5>Operaciones</h5>
                     <DataTable value={operations} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)} responsiveLayout="scroll"
                         rowExpansionTemplate={maniobrasTemplate} dataKey="id" header={header} loading={loadingOp}  >
                         <Column expander style={{ width: '3em' }} />
@@ -287,6 +497,7 @@ const Operations = () => {
                         </form>
                     </Fragment>
                 </Dialog> : <></>}
+                <Toast ref={toast} />
             </div>
         )
             : (<div className="card">
@@ -314,4 +525,4 @@ const comparisonFn = function (prevProps, nextProps) {
     return prevProps.location.pathname === nextProps.location.pathname;
 };
 
-export default React.memo(Operations, comparisonFn);
+export default React.memo(Operations, comparisonFn); 
