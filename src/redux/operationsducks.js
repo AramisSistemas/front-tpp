@@ -10,7 +10,7 @@ const dataInicial = {
 // types
 const LOADING = 'LOADING'
 const MANIOBRA_OK = 'MANIOBRA_OK'
-const MANIOBRA_FAIL = 'MANIOBRA_FAIL' 
+const MANIOBRA_FAIL = 'MANIOBRA_FAIL'
 const SET_DATOS_MANIOBRA = 'SET_DATOS_MANIOBRA'
 
 // reducer
@@ -121,4 +121,83 @@ export const pasarDatosManiobra = (rowData) => (dispatch) => {
         }
     })
 
-} 
+}
+
+export const cerrarManiobra = (operacion, puesto) => async (dispatch) => {
+
+    await request.post('Operations/LiquidacionesCerrarByOpByPuesto/?operacion=' + operacion + '&puesto=' + puesto)
+        .then(function (response) {
+            dispatch({
+                type: MANIOBRA_OK
+            })
+            dispatch(messageService(true, 'Maniobra Cerrada ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: MANIOBRA_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+            if (error.response.status === 401) {
+                dispatch(logout);
+            }
+        });
+}
+
+export const confirmarManiobra = (operacion, puesto) => async (dispatch) => {
+
+    await request.post('Operations/LiquidacionesConfirmarByOpByPuesto/?operacion=' + operacion + '&puesto=' + puesto)
+        .then(function (response) {
+            dispatch({
+                type: MANIOBRA_OK
+            })
+            dispatch(messageService(true, 'Maniobra Confirmada ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: MANIOBRA_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+            if (error.response.status === 401) {
+                dispatch(logout);
+            }
+        });
+}
+
+export const llaveManiobra = (operacion, puesto, llave) => async (dispatch) => {
+
+    await request.patch('Operations/LiquidacionesLLave/?operacion=' + operacion + '&puesto=' + puesto + '&llave=' + llave)
+        .then(function (response) {
+            dispatch({
+                type: MANIOBRA_OK
+            })
+            dispatch(messageService(true, 'Llave conformada ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: MANIOBRA_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+            if (error.response.status === 401) {
+                dispatch(logout);
+            }
+        });
+}
+
+export const reabrirManiobra = (operacion, puesto) => async (dispatch) => {
+    await request.post('Operations/LiquidacionesReabrirByOpByPuesto/?operacion=' + operacion + '&puesto=' + puesto)
+        .then(function (response) {
+            dispatch({
+                type: MANIOBRA_OK
+            })
+            dispatch(messageService(true, 'Maniobra Abierta ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: MANIOBRA_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+            if (error.response.status === 401) {
+                dispatch(logout);
+            }
+        });
+}

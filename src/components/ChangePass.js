@@ -1,14 +1,12 @@
-import React, { useState, Fragment } from 'react';
+import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
+import React, { Fragment, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import {changePassUser} from '../redux/usersducks';
 
-import { useDispatch } from 'react-redux'
-import { login } from '../redux/usersducks'
-
-
-const Login = () => {
+const ChangePass = () => {
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
     const [usermodel, setusermodel] = useState([]);
@@ -16,25 +14,27 @@ const Login = () => {
 
     const dispatch = useDispatch()
 
-    const onSubmit = (data) => {
+    const onSubmit = (data) => { 
+        if(data.password===data.npassword)
+
         setusermodel([
             ...usermodel,
             data
         ])
-        dispatch(login(data));
+        dispatch(changePassUser(data));
         // limpiar campos
-        reset({ username: '', password: '' });
+        reset({ username: '', password: '', npassword: ''});
         setdisplaylogin(false);
     }
     return <>
         <button className="p-link layout-topbar-button" onClick={() => setdisplaylogin(true)}>
-            <i className="pi pi-user" />
-            <span>Login</span>
+            <i className="pi pi-cog" />
+            <span>Registro</span>
         </button>
 
-        <Dialog header="Login" className="card p-fluid" visible={displaylogin} style={{ width: '30vw' }} modal onHide={() => setdisplaylogin(false)}>
+        <Dialog header="Cambio Pass" className="card p-fluid" visible={displaylogin} style={{ width: '30vw' }} modal onHide={() => setdisplaylogin(false)}>
             <Fragment>
-                <form className="field grid" onSubmit={handleSubmit(onSubmit)}>
+            <form className="field grid" onSubmit={handleSubmit(onSubmit)}>
                     <div className="formgroup-inline">
                         <div className="field col-12"  >
                             <label htmlFor="username" className="p-sr-only">Usuario</label>
@@ -50,6 +50,13 @@ const Login = () => {
                             })}
                             /> {errors.password?.type === 'required' && "Ingrese Password"}
                         </div>
+                        <div className="field col-12"  >
+                            <label htmlFor="npassword" className="p-sr-only">Nuevo Password</label>
+                            <InputText type="password" placeholder="Nuevo Password" {...register("npassword", {
+                                required: true,
+                            })}
+                            /> {errors.npassword?.type === 'required' && "Ingrese Nuevo Password"} 
+                        </div>
                         <Button label="Ingreso"></Button>
                     </div>
                 </form> 
@@ -58,4 +65,4 @@ const Login = () => {
     </>
 };
 
-export default Login;
+export default ChangePass;

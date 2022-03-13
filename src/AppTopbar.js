@@ -1,12 +1,16 @@
-import React, { useEffect, useRef} from 'react';
-import { Link } from 'react-router-dom';
 import classNames from 'classnames';
+import { Toast } from 'primereact/toast';
+import React, { useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { logout } from './redux/usersducks';
 import Login from './components/Login';
 import Logout from './components/Logout';
-import { useSelector } from 'react-redux'
-import { Toast } from 'primereact/toast';
+import Register from './components/Register';
+import ChangePass from './components/ChangePass';
 
 export const AppTopbar = (props) => {
+    const dispatch = useDispatch();
     const message = useSelector(store => store.messages.message)
     const status = useSelector(store => store.messages.status)
     const toast = useRef();
@@ -15,11 +19,12 @@ export const AppTopbar = (props) => {
         if (message !== '' && message !== null) {
             switch (status) {
                 case 200: toast.current.show({ severity: 'success', summary: 'Correcto', detail: message, life: 3000 });
-                break;
+                    break;
                 case 400: toast.current.show({ severity: 'warn', summary: 'Verifique', detail: message, life: 3000 });
-                break;
+                    break;
                 case 401: toast.current.show({ severity: 'error', summary: 'Autenticacion', detail: message, life: 3000 });
-                break;
+                    dispatch(logout);
+                    break;
                 default: toast.current.show({ severity: 'info', summary: 'Atendeme', detail: message, life: 3000 });
             }
         }
@@ -48,10 +53,10 @@ export const AppTopbar = (props) => {
                     </button>
                 </li>
                 <li>
-                    <button className="p-link layout-topbar-button" onClick={props.onMobileSubTopbarMenuClick}>
-                        <i className="pi pi-cog" />
-                        <span>Settings</span>
-                    </button>
+                  <ChangePass/>
+                </li>
+                <li>
+                    <Register />
                 </li>
                 <li>
                     <Login />

@@ -1,3 +1,4 @@
+import { logout } from "./usersducks"
 const dataInicial = {
     status: null,
     message: null
@@ -41,7 +42,7 @@ export const messageService = (ok, message, status) => (dispatch) => {
             }
         });
         if (status === 401) {
-            localStorage.removeItem('token');
+            dispatch(logout());
         }
     }
 }

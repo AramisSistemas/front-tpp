@@ -1,6 +1,5 @@
 import request from '../context/interceptor';
-import { messageService } from './messagesducks';
-import { logout } from './usersducks';
+import { messageService } from './messagesducks'; 
 
 const dataInicial = {
     loading: false
@@ -44,9 +43,44 @@ export const liquidacionesAdd = (liquidaciones) => async (dispatch) => {
             dispatch({
                 type: LIQUIDACIONES_FAIL
             })
-            dispatch(messageService(false, error.response.data.message, error.response.status));
-            if (error.response.status === 401) {
-                dispatch(logout);
-            }
+            dispatch(messageService(false, error.response.data.message, error.response.status)); 
+        });
+}
+
+export const liquidacionesDelete = (operacion, puesto) => async (dispatch) => {
+    dispatch({
+        type: LOADING
+    })
+    await request.delete('Empleados/LiquidacionesDelete/?operacion=' + operacion + '&puesto=' + puesto)
+        .then(function (response) {
+            dispatch({
+                type: LIQUIDACIONES_OK
+            })
+            dispatch(messageService(true, 'Liquidaciones eliminadas ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: LIQUIDACIONES_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status)); 
+        });
+}
+
+export const liquidacionDelete = (liquidacion) => async (dispatch) => {
+    dispatch({
+        type: LOADING
+    })
+    await request.delete('Empleados/LiquidacionesDeleteByLiq/?liquidacion=' + liquidacion)
+        .then(function (response) {
+            dispatch({
+                type: LIQUIDACIONES_OK
+            })
+            dispatch(messageService(true, 'Liquidación eliminadas ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: LIQUIDACIONES_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));             
         });
 }

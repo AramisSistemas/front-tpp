@@ -1,3 +1,4 @@
+import { Badge } from 'primereact/badge';
 import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Column } from 'primereact/column';
@@ -17,12 +18,12 @@ import { classNames } from 'primereact/utils';
 import { default as React, Fragment, useEffect, useRef, useState } from 'react';
 import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
-import { liquidacionesAdd } from '../redux/liquidacionesducks';
+import { liquidacionDelete, liquidacionesAdd, liquidacionesDelete } from '../redux/liquidacionesducks';
 import { messageService } from '../redux/messagesducks';
-import { actualizarManiobra, eliminarManiobra, ingresarManiobra } from '../redux/operationsducks';
+import { actualizarManiobra, cerrarManiobra, confirmarManiobra, eliminarManiobra, ingresarManiobra, llaveManiobra, reabrirManiobra } from '../redux/operationsducks';
+import { logout } from '../redux/usersducks';
 import { EmpleadoService } from '../service/EmpleadoService';
 import { OperationService } from '../service/OperationService';
-
 const Operations = () => {
     const dispatch = useDispatch();
 
@@ -63,6 +64,10 @@ const Operations = () => {
     const [empleadosVisibles, setEmpleadosVisibles] = useState(false);
     const [selectedEmpleados, setSelectedEmpleados] = useState([])
     const [empleadosFilter, setEmpleadosFilter] = useState(null);
+    const [cierreVisible, setCierreVisible] = useState(false);
+    const [datosCierre, setDatosCierre] = useState([]);
+    const [llave, setLlave] = useState(100);
+    const [llaveVisible, setLlaveVisible] = useState(false);
     const dt = useRef(null);
 
     const [expandedRows, setExpandedRows] = useState(null);
@@ -112,8 +117,8 @@ const Operations = () => {
 
     const fetchOperations = async () => {
         setLoadingOp(true)
-        await operationService.getAll().then(data => { setOperations(data) }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
-        await operationService.getManiobrasActivas(false).then(data => { setManiobrasActivas(data) });
+        await operationService.getAll().then(data => { setOperations(data) }).catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
+        await operationService.getManiobrasActivas(false).then(data => { setManiobrasActivas(data) }).catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
         setLoadingOp(false);
     }
 
@@ -128,10 +133,103 @@ const Operations = () => {
         fetchLiquidacionesByManiobra(op, puesto).then(
             fetchComposicion(op));
         setSelectedEmpleados(null);
-        setEmpleadosVisibles(false);
     }
 
-    const onSubmitLiquidaciones = (op, puesto) => {
+    const onSubmitCerrarManiobra = () => {
+        let datosComposicion = composicionManiobra.filter(c => c.idPuesto === liquidaciones.filter(l => l.tipo === "Actual").map(l => l.idPuesto)[0]);
+        let datosManiobra = maniobrasActivas.filter(l => l.id === composicionManiobra.map(l => l.operacion)[0]);
+        let estadoLiquidacion = liquidaciones.filter(l => l.tipo === "Actual");
+        setDatosCierre({
+            minima: datosComposicion[0].cantidad,
+            idManiobra: datosComposicion[0].idManiobra,
+            idPuesto: datosComposicion[0].idPuesto,
+            liquidadas: datosComposicion[0].liquidadas,
+            operacion: datosComposicion[0].operacion,
+            puesto: datosComposicion[0].puesto,
+            fecha: datosManiobra[0].fecha,
+            insalubre: datosManiobra[0].insalubre,
+            lluvia: datosManiobra[0].lluvia,
+            maniobra: datosManiobra[0].maniobra,
+            maniobraNombre: datosManiobra[0].maniobraNombre,
+            produccion: datosManiobra[0].produccion,
+            sobrepeso: datosManiobra[0].sobrepeso,
+            turno: datosManiobra[0].turno,
+            turnoDesc: datosManiobra[0].turnoDesc,
+            abierta: estadoLiquidacion.length !== 0 ? estadoLiquidacion[0].abierta : true,
+            confirmada: estadoLiquidacion.length !== 0 ? estadoLiquidacion[0].confirmada : true,
+            pagado: estadoLiquidacion.length !== 0 ? estadoLiquidacion[0].pagado : true,
+        });
+        estadoLiquidacion[0].nombre !== 'Sin Datos' ? setCierreVisible(!cierreVisible) :
+            messageService(false, 'No hay liquidaciones para trabajar', 500)
+    }
+
+    const onSubmitFinalizarCierreManiobra = (e) => {
+        e.preventDefault();
+        dispatch(cerrarManiobra(datosCierre.operacion, datosCierre.idPuesto)).then(
+            setCierreVisible(!cierreVisible)
+        );
+    }
+
+    const onSubmitFinalizarConfirmarManiobra = (e) => {
+        e.preventDefault();
+        dispatch(confirmarManiobra(datosCierre.operacion, datosCierre.idPuesto)).then(
+            setCierreVisible(!cierreVisible)
+        );
+    }
+
+    const onSubmitLlaveManiobra = (e) => {
+        e.preventDefault();
+        dispatch(llaveManiobra(liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], llave)).then(
+            setLlaveVisible(false)
+        );
+    }
+
+    const onSubmitReabrirManiobra = (e) => {
+        e.preventDefault();
+        dispatch(reabrirManiobra(datosCierre.operacion, datosCierre.idPuesto)).then(
+            setCierreVisible(!cierreVisible)
+        );
+    }
+
+    const onSubmitEliminarLiquidaciones = (operacion, puesto, opAnterior) => {
+        try {
+            dispatch(liquidacionesDelete(operacion, puesto)).then(
+                actualizarLiquidaciones(opAnterior, puesto));
+        } catch (error) {
+            messageService(false, error.message, error.status)
+        }
+    }
+
+    const onSubmitEliminarLiquidacion = (liquidacion, operacion, puesto) => {
+        try {
+            dispatch(liquidacionDelete(liquidacion)).then(
+                actualizarLiquidaciones(operacion, puesto));
+        } catch (error) {
+            messageService(false, error.message, error.status)
+        }
+    }
+
+    const onSubmitLiquidacionesByTurno = (empleados, op, puesto, opAnterior) => {
+        try {
+            let lm = []
+            empleados.forEach(e =>
+                lm.push({
+                    Empleado: e.idEmpleado,
+                    Operacion: op,
+                    Puesto: puesto,
+                    Abierta: true,
+                    Pagado: false,
+                    Operador: ''
+                }));
+            var json = JSON.stringify(lm);
+            dispatch(liquidacionesAdd(json)).then(
+                actualizarLiquidaciones(opAnterior, puesto));
+        } catch (error) {
+            messageService(true, error.message, 500)
+        }
+    }
+
+    const onSubmitLiquidaciones = (op, puesto, opAnterior) => {
         try {
             let lm = []
             selectedEmpleados.forEach(e =>
@@ -145,10 +243,26 @@ const Operations = () => {
                 }));
             var json = JSON.stringify(lm);
             dispatch(liquidacionesAdd(json)).then(
-                actualizarLiquidaciones(op, puesto));
+                actualizarLiquidaciones(opAnterior, puesto)).then(
+                    setEmpleadosVisibles(false));
         } catch (error) {
             messageService(true, error.message, 500)
         }
+    }
+
+    const onSubmitLiquidacion = (op, puesto, empleado, opAnterior) => {
+        let lm = [];
+        lm.push({
+            Empleado: empleado,
+            Operacion: op,
+            Puesto: puesto,
+            Abierta: true,
+            Pagado: false,
+            Operador: ''
+        });
+        var json = JSON.stringify(lm);
+        dispatch(liquidacionesAdd(json)).then(
+            actualizarLiquidaciones(opAnterior, puesto));
     }
 
     const onSubmitManiobra = (e) => {
@@ -162,8 +276,11 @@ const Operations = () => {
 
     const onSubmitActualizaManiobra = (e) => {
         e.preventDefault()
+        if (datosManiobra.produccion > 130) {
+            dispatch(messageService(false, 'La producción no puede ser superior a 130 Tn', 400));
+            return;
+        }
         dispatch(actualizarManiobra(datosManiobra));
-        // limpiar campos
         e.target.reset();
         setDisplayActualizaManiobra(false);
         actualizarTablas();
@@ -239,15 +356,33 @@ const Operations = () => {
 
     const empleadosActionTemplate = (data) => {
         return (
-            <Button icon="pi pi-arrow-circle-right" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={() => console.log(data)} />
+            <Button icon="pi pi-arrow-circle-right" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={() => onSubmitLiquidacion(liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], data.id, liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
         )
+    }
+
+    const empleadoNombreTemplate = (rowData) => {
+        return <Badge size="large" value={rowData.nombre} severity={rowData.color} style={{ textAlign: 'left' }}></Badge>
+    }
+    const empleadoLlaveTemplate = (rowData) => {
+        return <Badge size="medium" value={rowData.llave} severity={rowData.llave > 1 ? 'danger' :
+            rowData.llave === 1 ? 'success' : 'warning'}
+            style={{ textAlign: 'center' }}></Badge>
     }
 
     const liquidacionesActionTemplate = (data) => {
         return (
             <>
-                <Button icon="pi pi-arrow-circle-right" className="p-button-rounded p-button-success p-button-outlined mr-2 mb-2" onClick={() => console.log(data)} />
-                <Button icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-outlined mr-2 mb-2" onClick={() => console.log(data)} />
+                <Button icon="pi pi-arrow-circle-right" className="p-button-rounded p-button-success p-button-outlined mr-2 mb-2" onClick={() => onSubmitLiquidacion(liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.operacion)[0], data.idPuesto, data.idEmpleado, liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
+                <Button icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-outlined mr-2 mb-2" onClick={() => onSubmitEliminarLiquidacion(data.liquidacion, liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], data.idPuesto)} />
+            </>
+        )
+    }
+
+    const liquidacionesAnteriorActionTemplate = (data) => {
+        return (
+            <>
+                <Button icon="pi pi-arrow-circle-right" className="p-button-rounded p-button-success p-button-outlined mr-2 mb-2" onClick={() => onSubmitLiquidacion(liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], data.idPuesto, data.idEmpleado, liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
+                <Button icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-outlined mr-2 mb-2" onClick={() => onSubmitEliminarLiquidacion(data.liquidacion, liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], data.idPuesto)} />
             </>
         )
     }
@@ -255,8 +390,8 @@ const Operations = () => {
     const liquidacionesSiguienteActionTemplate = (data) => {
         return (
             <>
-                <Button icon="pi pi-arrow-circle-left" className="p-button-rounded p-button-success p-button-outlined mr-2 mb-2" onClick={() => console.log(data)} />
-                <Button icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-outlined mr-2 mb-2" onClick={() => console.log(data)} />
+                <Button icon="pi pi-arrow-circle-left" className="p-button-rounded p-button-success p-button-outlined mr-2 mb-2" onClick={() => onSubmitLiquidacion(liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], data.idPuesto, data.idEmpleado, liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
+                <Button icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-outlined mr-2 mb-2" onClick={() => onSubmitEliminarLiquidacion(data.liquidacion, liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], data.idPuesto)} />
             </>
         )
     }
@@ -300,34 +435,109 @@ const Operations = () => {
     );
 
     const headerTurnoActual = (
-        <div className="table-header-container">
-            <label>{liquidaciones.length > 0 ? "Turno Actual " + liquidaciones.filter(l => l.tipo === "Actual").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Actual").map(m => m.horario)[0] : 'Sin Datos'} </label>
-            <Button icon="pi pi-user-plus" className="p-button-rounded p-button-outlined p-button-success mr-2 mb-2" onClick={() => setEmpleadosVisibles(true)} />
-            <Button icon="pi pi-angle-double-right" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={(e) => console.log(e.target)} />
-            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => setEmpleadosVisibles(true)} />
-        </div>
+        <>
+            <div className="table-header-container">
+                <label>{liquidaciones.length > 0 ? liquidaciones.filter(l => l.tipo === "Actual").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Actual").map(m => m.horario)[0] : 'Sin Datos'} </label>
+                <Button icon="pi pi-user-plus" className="p-button-rounded p-button-outlined p-button-success mr-2 mb-2" onClick={() => setEmpleadosVisibles(true)} />
+                <Button icon="pi pi-angle-double-right" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={() => onSubmitLiquidacionesByTurno(liquidaciones.filter(l => l.tipo === "Actual"), liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
+                <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => onSubmitEliminarLiquidaciones(liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
+                <Button icon="pi pi-dollar" className="p-button-rounded p-button-outlined p-button-info mr-2 mb-2" onClick={() => onSubmitCerrarManiobra()} />
+                <Button icon="pi pi-key" className="p-button-rounded p-button-outlined p-button-warning mr-2 mb-2" onClick={() => setLlaveVisible(true)} />
+            </div>
+            {datosCierre ? <Dialog className="card p-fluid" header="Maniobra" visible={cierreVisible} style={{ width: '30vw' }} modal onHide={() => setCierreVisible(false)}>
+                <Fragment>
+                    <div>
+                        {(!datosCierre.abierta || datosCierre.confirmada) && !datosCierre.pagado ? (<Button className="p-button-raised p-button-danger mr-2 mb-2" label='Reabrir Maniobra' onClick={onSubmitReabrirManiobra}></Button>) :
+                            <></>}
+                    </div>
+                    <form className="card" onSubmit={!datosCierre.abierta && !datosCierre.confirmada ? onSubmitFinalizarConfirmarManiobra : onSubmitFinalizarCierreManiobra}>
+                        <div className="p-fluid formgrid grid">
+                            <input readOnly hidden value={datosCierre.operacion} />
+                            <input readOnly hidden value={datosCierre.idPuesto} />
+                            <div className="field col-8">
+                                <label htmlFor="fecha">Fecha</label>
+                                <InputText readOnly value={datosCierre.fecha !== undefined ? (datosCierre.fecha).replace('T00:00:00', '') : ''} />
+                            </div>
+                            <div className="field col-8">
+                                <label htmlFor="maniobraNombre">Operación</label>
+                                <InputText readOnly value={datosCierre.maniobraNombre} />
+                            </div>
+                            <div className="field col-12">
+                                <label htmlFor="puesto">Maniobra</label>
+                                <InputText readOnly value={datosCierre.puesto} />
+                            </div>
+                            <div className="field col-12">
+                                <label htmlFor="turnoDesc">Turno</label>
+                                <InputText readOnly value={datosCierre.turnoDesc} />
+                            </div>
+                            <div className="field col-4">
+                                <label htmlFor="minima">Mano Mínima</label>
+                                <InputText readOnly value={datosCierre.minima} />
+                            </div>
+                            <div className="field col-4">
+                                <label htmlFor="liquidadas">Liquidaciones</label>
+                                <InputText readOnly value={datosCierre.liquidadas} />
+                            </div>
+                            <div className="field col-4">
+                                <label htmlFor="produccion">Producción</label>
+                                <InputText readOnly value={datosCierre.produccion} />
+                            </div>
+                            <div className="field col-4">
+                                <i className={classNames('pi', { 'text-green-500 pi-check-circle': datosCierre.lluvia, 'text-pink-500 pi-times-circle': !datosCierre.lluvia })}> Lluvia</i>
+                            </div>
+                            <div className="field col-4">
+                                <i className={classNames('pi', { 'text-green-500 pi-check-circle': datosCierre.insalubre, 'text-pink-500 pi-times-circle': !datosCierre.insalubre })}> Insalubre</i>
+                            </div>
+                            <div className="field col-4">
+                                <i className={classNames('pi', { 'text-green-500 pi-check-circle': datosCierre.sobrepeso, 'text-pink-500 pi-times-circle': !datosCierre.sobrepeso })}> Sobrepeso</i>
+                            </div>
+                            {datosCierre.abierta ? (<Button type='submit' label='Cerrar Maniobra' ></Button>) :
+                                !datosCierre.abierta && !datosCierre.confirmada ? (<Button className="p-button-raised p-button-warning mr-2 mb-2" label='Confirmar Maniobra'></Button>)
+                                    : <></>}
+                        </div>
+                    </form>
+                </Fragment>
+            </Dialog>
+                : <></>}
+            {liquidaciones ? <Dialog className="card p-fluid" header="Llaves" visible={llaveVisible} style={{ width: '30vw' }} modal onHide={() => setLlaveVisible(false)}>
+                <Fragment>
+                    <form className="card" onSubmit={onSubmitLlaveManiobra}>
+                        <div className="p-fluid formgrid grid">
+                            <input readOnly hidden value={liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0]} />
+                            <input readOnly hidden value={liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0]} />
+                            <div className="field col-12">
+                                <InputNumber value={llave} onValueChange={(e) => setLlave(e.value)} min={0} step={25} showButtons buttonLayout="horizontal"
+                                    decrementButtonClassName="p-button-secondary" incrementButtonClassName="p-button-secondary" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" />
+                            </div>
+                            <Button label='Establecer Llave' ></Button>
+                        </div>
+                    </form>
+                </Fragment>
+            </Dialog>
+                : <></>}
+        </>
     );
 
     const headerTurnoSiguiente = (
         <div className="table-header-container">
-            <label>{liquidaciones.length > 0 ? "Turno Siguiente " + liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.horario)[0] : 'Sin Datos'} </label>
-            <Button icon="pi pi-angle-double-left" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={(e) => console.log(e.target)} />
-            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => setEmpleadosVisibles(true)} />
+            <label>{liquidaciones.filter(l => l.tipo === "Posterior").length > 0 ? liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.horario)[0] : 'Sin Datos'} </label>
+            <Button icon="pi pi-angle-double-left" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={() => onSubmitLiquidacionesByTurno(liquidaciones.filter(l => l.tipo === "Posterior"), liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
+            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => onSubmitEliminarLiquidaciones(liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
         </div>
     );
 
     const headerTurnoAnterior = (
         <div className="table-header-container">
-            <label>{liquidaciones.length > 0 ? "Turno Anterior " + liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.horario)[0] : 'Sin Datos'} </label>
-            <Button icon="pi pi-angle-double-right" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={(e) => console.log(e.target)} />
-            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => setEmpleadosVisibles(true)} />
+            <label>{liquidaciones.filter(l => l.tipo === "Anterior").length > 0 ? liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.horario)[0] : 'Sin Datos'} </label>
+            <Button icon="pi pi-angle-double-right" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={() => onSubmitLiquidacionesByTurno(liquidaciones.filter(l => l.tipo === "Anterior"), liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
+            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => onSubmitEliminarLiquidaciones(liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
         </div>
     );
 
     const headerEmpleados = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
             <h5 className="m-0">Empleados</h5>
-            <Button icon="pi pi-angle-double-right" onClick={() => onSubmitLiquidaciones(liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0])} label={"Liquidar Los Seleccionados"} className="p-button-rounded p-button-success mr-2 mb-2" />
+            <Button icon="pi pi-angle-double-right" onClick={() => onSubmitLiquidaciones(liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} label={"Liquidar Los Seleccionados"} className="p-button-rounded p-button-success mr-2 mb-2" />
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setEmpleadosFilter(e.target.value)} placeholder="Buscar..." />
@@ -366,8 +576,7 @@ const Operations = () => {
                                 </div>
                                 <div className="field col-12">
                                     <label htmlFor="produccion">Producción</label>
-                                    <InputNumber min={0} max={260} value={datosManiobra.produccion} onChange={(e) => actualizarDatosManiobra("produccion", e.value)} step={10} showButtons buttonLayout="horizontal"
-                                        decrementButtonClassName="p-button-danger" incrementButtonClassName="p-button-success" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" />
+                                    <InputText value={datosManiobra.produccion} onChange={(e) => actualizarDatosManiobra("produccion", e.target.value)} />
                                 </div>
                                 <div className="field col-4">
                                     <h5>Lluvia</h5>
@@ -396,31 +605,63 @@ const Operations = () => {
                         <Column field="progreso" header="Progreso" body={progressbarTemplate} sortable></Column>
                         <Column headerStyle={{ width: '4rem' }} body={accionComposicionTemplate}></Column>
                     </DataTable>
-
                 </Dialog>
                 <Sidebar visible={liquidacionesVisibles} header={"Liquidacion de jornales"} fullScreen onHide={() => setLiquidacionesVisibles(false)}>
                     <div className="flex">
-                        <DataTable header={headerTurnoAnterior} value={liquidaciones.filter(m => m.tipo === 'Anterior')} responsiveLayout="scroll"  >
-                            <Column field="nombre" header="Nombre" sortable></Column>
+                        {liquidaciones.filter(l => l.tipo === "Anterior").length > 0 ? <DataTable header={headerTurnoAnterior} value={liquidaciones.filter(m => m.tipo === 'Anterior')} responsiveLayout="scroll"  >
+                            <Column field="nombre" header="Nombre" sortable body={empleadoNombreTemplate}></Column>
                             <Column field="empleado" header="Cuil" sortable></Column>
-                            <Column headerStyle={{ width: '4rem' }} body={liquidacionesActionTemplate}></Column>
+                            <Column field="llave" header="Llave" sortable body={empleadoLlaveTemplate}></Column>
+                            <Column headerStyle={{ width: '4rem' }} body={liquidacionesAnteriorActionTemplate}></Column>
                         </DataTable>
+                            : <div className="border-round border-1 surface-border p-4">
+                                <div className="flex mb-3">
+                                    <Skeleton shape="circle" size="4rem" className="mr-2"></Skeleton>
+                                    <div>
+                                        <Skeleton width="10rem" className="mb-2"></Skeleton>
+                                        <Skeleton width="5rem" className="mb-2"></Skeleton>
+                                        <Skeleton height=".5rem"></Skeleton>
+                                    </div>
+                                </div>
+                                <Skeleton width="100%" height="150px"></Skeleton>
+                                <div className="flex justify-content-between mt-3">
+                                    <Skeleton width="4rem" height="2rem"></Skeleton>
+                                    <Skeleton width="4rem" height="2rem"></Skeleton>
+                                </div>
+                            </div>}
                         <Divider layout="vertical" />
                         <DataTable header={headerTurnoActual} value={liquidaciones.filter(m => m.tipo === 'Actual')} responsiveLayout="scroll"  >
-                            <Column field="nombre" header="Nombre" sortable></Column>
+                            <Column field="nombre" header="Nombre" sortable body={empleadoNombreTemplate}></Column>
                             <Column field="empleado" header="Cuil" sortable></Column>
+                            <Column field="llave" header="Llave" sortable body={empleadoLlaveTemplate}></Column>
                             <Column headerStyle={{ width: '4rem' }} body={liquidacionesActionTemplate}></Column>
                         </DataTable>
                         <Divider layout="vertical" />
-                        <DataTable header={headerTurnoSiguiente} value={liquidaciones.filter(m => m.tipo === 'Posterior')} responsiveLayout="scroll"  >
-                            <Column field="nombre" header="Nombre" sortable></Column>
+                        {liquidaciones.filter(l => l.tipo === "Posterior").length > 0 ? <DataTable header={headerTurnoSiguiente} value={liquidaciones.filter(m => m.tipo === 'Posterior')} responsiveLayout="scroll"  >
+                            <Column field="nombre" header="Nombre" sortable body={empleadoNombreTemplate}></Column>
                             <Column field="empleado" header="Cuil" sortable></Column>
+                            <Column field="llave" header="Llave" sortable body={empleadoLlaveTemplate}></Column>
                             <Column headerStyle={{ width: '4rem' }} body={liquidacionesSiguienteActionTemplate}></Column>
                         </DataTable>
+                            : <div className="border-round border-1 surface-border p-4">
+                                <div className="flex mb-3">
+                                    <Skeleton shape="circle" size="4rem" className="mr-2"></Skeleton>
+                                    <div>
+                                        <Skeleton width="10rem" className="mb-2"></Skeleton>
+                                        <Skeleton width="5rem" className="mb-2"></Skeleton>
+                                        <Skeleton height=".5rem"></Skeleton>
+                                    </div>
+                                </div>
+                                <Skeleton width="100%" height="150px"></Skeleton>
+                                <div className="flex justify-content-between mt-3">
+                                    <Skeleton width="4rem" height="2rem"></Skeleton>
+                                    <Skeleton width="4rem" height="2rem"></Skeleton>
+                                </div>
+                            </div>}
                     </div>
                     <Sidebar visible={empleadosVisibles} position="left" style={{ width: '60em' }} onHide={() => setEmpleadosVisibles(false)}>
                         <DataTable ref={dt} value={empleados} selection={selectedEmpleados} onSelectionChange={(e) => setSelectedEmpleados(e.value)}
-                            dataKey="id" paginator rows={5} rowsPerPageOptions={[5, 10, 25]} className="datatable-responsive"
+                            dataKey="id" paginator rows={10} rowsPerPageOptions={[5, 10, 25]} className="datatable-responsive"
                             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} empleados"
                             globalFilter={empleadosFilter} emptyMessage="Sin Datos." header={headerEmpleados} responsiveLayout="scroll">
@@ -430,7 +671,6 @@ const Operations = () => {
                             <Column field="puestoDetalle" header="Puesto" sortable></Column>
                             <Column headerStyle={{ width: '4rem' }} body={empleadosActionTemplate}></Column>
                         </DataTable>
-
                     </Sidebar>
                 </Sidebar>
             </div >
@@ -440,7 +680,7 @@ const Operations = () => {
 
     useEffect(() => {
         if (activo === true) {
-            fetchOperations();
+            fetchOperations().catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
             if (message !== '' && message !== null) {
                 switch (status) {
                     case 200: toast.current.show({ severity: 'success', summary: 'Correcto', detail: message, life: 3000 });
@@ -448,12 +688,13 @@ const Operations = () => {
                     case 400: toast.current.show({ severity: 'warn', summary: 'Verifique', detail: message, life: 3000 });
                         break;
                     case 401: toast.current.show({ severity: 'error', summary: 'Autenticacion', detail: message, life: 3000 });
+                        dispatch(logout());
                         break;
                     default: toast.current.show({ severity: 'info', summary: 'Atendeme', detail: message, life: 3000 });
                 }
             }
         }
-    }, [activo, message, status]);
+    }, [activo, message, status, dispatch]);
 
     return (
         activo ? (
@@ -486,7 +727,6 @@ const Operations = () => {
                                     <Dropdown name="turno" onChange={(e) => setTurnomaniobra(e.value)} value={turnomaniobra} options={turnos} optionValue="id" optionLabel="horario" placeholder="Seleccione Turno"
                                         required={true} />
                                 </div>
-
                                 <div className="field col-12">
                                     <h5>Maniobra</h5>
                                     <Dropdown name="maniobra" onChange={(e) => setManiobraOperacion(e.value)} value={maniobraOperacion} options={maniobras} optionValue="id" optionLabel="detalle" placeholder="Seleccione Maniobra"
@@ -525,4 +765,4 @@ const comparisonFn = function (prevProps, nextProps) {
     return prevProps.location.pathname === nextProps.location.pathname;
 };
 
-export default React.memo(Operations, comparisonFn); 
+export default React.memo(Operations, comparisonFn);   
