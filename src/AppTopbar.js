@@ -3,11 +3,11 @@ import { Toast } from 'primereact/toast';
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { logout } from './redux/usersducks';
+import ChangePass from './components/ChangePass';
 import Login from './components/Login';
 import Logout from './components/Logout';
 import Register from './components/Register';
-import ChangePass from './components/ChangePass';
+import { logout } from './redux/usersducks';
 
 export const AppTopbar = (props) => {
     const dispatch = useDispatch();
@@ -28,7 +28,7 @@ export const AppTopbar = (props) => {
                 default: toast.current.show({ severity: 'info', summary: 'Atendeme', detail: message, life: 3000 });
             }
         }
-    }, [message, status])
+    }, [message, status, dispatch])
 
     return (
         <div className="layout-topbar">
@@ -53,7 +53,7 @@ export const AppTopbar = (props) => {
                     </button>
                 </li>
                 <li>
-                  <ChangePass/>
+                    <ChangePass />
                 </li>
                 <li>
                     <Register />

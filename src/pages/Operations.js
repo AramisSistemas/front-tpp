@@ -18,14 +18,17 @@ import { classNames } from 'primereact/utils';
 import { default as React, Fragment, useEffect, useRef, useState } from 'react';
 import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { liquidacionDelete, liquidacionesAdd, liquidacionesDelete } from '../redux/liquidacionesducks';
 import { messageService } from '../redux/messagesducks';
-import { actualizarManiobra, cerrarManiobra, confirmarManiobra, eliminarManiobra, ingresarManiobra, llaveManiobra, reabrirManiobra } from '../redux/operationsducks';
+import { actualizarManiobra, cerrarManiobra, confirmarManiobra, eliminarManiobra, finalizarManiobra, ingresarManiobra, llaveManiobra, pasarDatosManiobra, reabrirManiobra } from '../redux/operationsducks';
 import { logout } from '../redux/usersducks';
 import { EmpleadoService } from '../service/EmpleadoService';
 import { OperationService } from '../service/OperationService';
+
 const Operations = () => {
     const dispatch = useDispatch();
+    const history = useHistory();
 
     const operationService = new OperationService();
     const empleadoService = new EmpleadoService();
@@ -79,18 +82,24 @@ const Operations = () => {
             command: () => { setDisplayIngresaManiobra(true) }
         },
         {
-            label: 'Update',
-            icon: 'pi pi-upload'
+            label: 'Jornales',
+            icon: 'pi pi-dollar',
+            command: () => { menuJornales(datosOperacion) }
         },
         {
-            label: 'Delete',
+            label: 'Eliminar',
             icon: 'pi pi-trash'
         },
         {
-            label: 'Home Page',
-            icon: 'pi pi-home'
+            label: 'Informes',
+            icon: 'pi pi-chart-line'
         },
     ];
+
+    const menuJornales = (datosOperacion) => { 
+        dispatch(pasarDatosManiobra(datosOperacion));
+        history.push("/jornales");
+    }
 
     const abreMenuManiobra = async (rowData) => {
         await fetchComposicion(rowData.id).then(
@@ -174,6 +183,12 @@ const Operations = () => {
         e.preventDefault();
         dispatch(confirmarManiobra(datosCierre.operacion, datosCierre.idPuesto)).then(
             setCierreVisible(!cierreVisible)
+        );
+    }
+
+    const onSubmitFinalizarManiobra = (id) => {
+        dispatch(finalizarManiobra(id)).then(
+            setDisplayActualizaManiobra(false)
         );
     }
 
@@ -471,7 +486,7 @@ const Operations = () => {
                                 <InputText readOnly value={datosCierre.turnoDesc} />
                             </div>
                             <div className="field col-4">
-                                <label htmlFor="minima">Mano Mínima</label>
+                                <label htmlFor="minima">Mínima</label>
                                 <InputText readOnly value={datosCierre.minima} />
                             </div>
                             <div className="field col-4">
@@ -561,6 +576,7 @@ const Operations = () => {
                 </DataTable>
                 {datosManiobra ? <Dialog className="card p-fluid" header="Maniobra" visible={displayActualizaManiobra} style={{ width: '30vw' }} modal onHide={() => setDisplayActualizaManiobra(false)}>
                     <Fragment>
+                        <Button className="p-button-raised p-button-danger mr-2 mb-2" label='Finalizar Maniobra' onClick={() => onSubmitFinalizarManiobra(datosManiobra.id)}></Button>
                         <form className="card" onSubmit={onSubmitActualizaManiobra}>
                             <div className="p-fluid formgrid grid">
                                 <input hidden readOnly value={datosManiobra.id} />

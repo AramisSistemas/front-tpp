@@ -11,7 +11,8 @@ import { AppConfig } from './AppConfig';
 //paginas de TPP
 
 import Operations from './pages/Operations';
-
+import Users from './pages/Users';
+import Jornales from './pages/Jornales';
 
 //componentes del DEmo
 import Dashboard from './components/Dashboard';
@@ -171,7 +172,13 @@ const App = () => {
         {
             label: 'Operaciones',
             items: [{
-                label: 'Operaciones', icon: 'pi pi-fw pi-cog', to: '/operations'
+                label: 'Operaciones', icon: 'pi pi-fw pi-server', to: '/operations'
+            }]
+        },
+        {
+            label: 'Opciones',
+            items: [{
+                label: 'Usuarios', icon: 'pi pi-fw pi-user-edit', to: '/users'
             }]
         },
         {
@@ -333,6 +340,8 @@ const App = () => {
                     <Route path="/documentation" component={Documentation} />
                     {/*  De TPP */}
                     <Route path="/operations" component={Operations} />
+                    <Route path="/users" component={Users} />
+                    <Route path="/jornales" component={Jornales} />
                 </div>
 
                 <AppFooter layoutColorMode={layoutColorMode} />

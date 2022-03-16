@@ -12,6 +12,11 @@ export class OperationService {
         return res.data;
     }
 
+    async GetLiquidacionesByOp(operacion) {
+        const res = await request.get('Operations/LiquidacionesByOp/?operacion=' + operacion);
+        return res.data;
+    }
+
     async getComposicionByManiobra(maniobra) {
         const res = await request.get('Operations/GetComposicionByManiobra/?id=' + maniobra)
         return res.data;

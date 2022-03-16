@@ -120,7 +120,6 @@ export const pasarDatosManiobra = (rowData) => (dispatch) => {
             datosManiobra: rowData
         }
     })
-
 }
 
 export const cerrarManiobra = (operacion, puesto) => async (dispatch) => {
@@ -190,6 +189,25 @@ export const reabrirManiobra = (operacion, puesto) => async (dispatch) => {
                 type: MANIOBRA_OK
             })
             dispatch(messageService(true, 'Maniobra Abierta ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: MANIOBRA_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+            if (error.response.status === 401) {
+                dispatch(logout);
+            }
+        });
+}
+
+export const finalizarManiobra = (operacion) => async (dispatch) => {
+    await request.post('Operations/ManiobrasFinalizar/?maniobra=' + operacion)
+        .then(function (response) {
+            dispatch({
+                type: MANIOBRA_OK
+            })
+            dispatch(messageService(true, 'Maniobra Finalizada ', response.status));
         })
         .catch(function (error) {
             dispatch({

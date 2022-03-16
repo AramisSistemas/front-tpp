@@ -16,6 +16,9 @@ const USUARIO_EXITO = 'USUARIO_EXITO'
 const USUARIO_ACTIVO = 'USUARIO_ACTIVO'
 const USUARIO_REGISTRADO = 'USUARIO_REGISTRADO'
 const CERRAR_SESION = 'CERRAR_SESION'
+const USUARIO_DELETE = 'USUARIO_DELETE'
+const USUARIO_UPDATE = 'USUARIO_UPDATE'
+
 
 // reducer
 export default function usersReducer(state = dataInicial, action) {
@@ -32,6 +35,10 @@ export default function usersReducer(state = dataInicial, action) {
             return { ...dataInicial }
         case CERRAR_SESION:
             return { ...dataInicial }
+        case USUARIO_DELETE:
+            return { ...state }
+        case USUARIO_UPDATE:
+            return { ...state }
         default:
             return { ...state }
     }
@@ -132,4 +139,54 @@ export const logout = () => (dispatch) => {
         type: CERRAR_SESION,
     });
     dispatch(messageService(true, 'Hasta la Próxima', 200));
+}
+
+export const eliminarUser = (data) => async (dispatch) => {
+
+    await request.delete('Users/Delete/?id=' + data)
+        .then(function (response) {
+            dispatch({
+                type: USUARIO_DELETE
+            })
+            dispatch(messageService(true, 'Usuario Eliminado ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: USUARIO_DELETE
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+            if (error.response.status === 401) {
+                dispatch(logout);
+            }
+        });
+}
+
+export const actualizarUsuario = (data) => async (dispatch) => {
+    var options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+    data.endOfLife=  data.endOfLife.toLocaleDateString("es-ES", options)
+    var form = new FormData();
+    form.append('Id', data.id)
+    form.append('FirstName', data.firstName)
+    form.append('LastName', data.lastName)
+    form.append('Username', data.username)
+    form.append('Password', data.password)
+    form.append('Perfil', data.perfil)
+    form.append('EndOfLife', data.endOfLife)
+    form.append('Confirmado', data.confirmado)
+    dispatch({
+        type: LOADING
+    })
+    await request.patch('Users/UpdateUser', form)
+        .then(function (response) {
+            dispatch({
+                type: USUARIO_UPDATE
+            })
+            dispatch(messageService(true, 'Usuario Actualizado ', response.status));
+        })
+        .catch(function (error) { 
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+            if (error.response.status === 401) {
+                dispatch(logout);
+            }
+        });
 }

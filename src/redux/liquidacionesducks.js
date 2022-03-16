@@ -32,7 +32,7 @@ export const liquidacionesAdd = (liquidaciones) => async (dispatch) => {
     const options = {
         headers: { "content-type": "application/json" }
     }
-    await request.put('Empleados/LiquidacionesAdd', liquidaciones, options)
+    await request.put('Operations/LiquidacionesAdd', liquidaciones, options)
         .then(function (response) {
             dispatch({
                 type: LIQUIDACIONES_OK
@@ -51,7 +51,7 @@ export const liquidacionesDelete = (operacion, puesto) => async (dispatch) => {
     dispatch({
         type: LOADING
     })
-    await request.delete('Empleados/LiquidacionesDelete/?operacion=' + operacion + '&puesto=' + puesto)
+    await request.delete('Operations/LiquidacionesDelete/?operacion=' + operacion + '&puesto=' + puesto)
         .then(function (response) {
             dispatch({
                 type: LIQUIDACIONES_OK
@@ -70,7 +70,7 @@ export const liquidacionDelete = (liquidacion) => async (dispatch) => {
     dispatch({
         type: LOADING
     })
-    await request.delete('Empleados/LiquidacionesDeleteByLiq/?liquidacion=' + liquidacion)
+    await request.delete('Operations/LiquidacionesDeleteByLiq/?liquidacion=' + liquidacion)
         .then(function (response) {
             dispatch({
                 type: LIQUIDACIONES_OK
