@@ -378,6 +378,7 @@ const Operations = () => {
     const empleadoNombreTemplate = (rowData) => {
         return <Badge size="large" value={rowData.nombre} severity={rowData.color} style={{ textAlign: 'left' }}></Badge>
     }
+    
     const empleadoLlaveTemplate = (rowData) => {
         return <Badge size="medium" value={rowData.llave} severity={rowData.llave > 1 ? 'danger' :
             rowData.llave === 1 ? 'success' : 'warning'}
@@ -452,7 +453,7 @@ const Operations = () => {
     const headerTurnoActual = (
         <>
             <div className="table-header-container">
-                <label>{liquidaciones.length > 0 ? liquidaciones.filter(l => l.tipo === "Actual").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Actual").map(m => m.horario)[0] : 'Sin Datos'} </label>
+                <label>{liquidaciones.length > 0 ? liquidaciones.filter(l => l.tipo === "Actual").map(m => m.puesto)[0] + " " + liquidaciones.filter(l => l.tipo === "Actual").map(m => m.horario)[0] : 'Sin Datos'} </label>
                 <Button icon="pi pi-user-plus" className="p-button-rounded p-button-outlined p-button-success mr-2 mb-2" onClick={() => setEmpleadosVisibles(true)} />
                 <Button icon="pi pi-angle-double-right" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={() => onSubmitLiquidacionesByTurno(liquidaciones.filter(l => l.tipo === "Actual"), liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
                 <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => onSubmitEliminarLiquidaciones(liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
@@ -535,7 +536,7 @@ const Operations = () => {
 
     const headerTurnoSiguiente = (
         <div className="table-header-container">
-            <label>{liquidaciones.filter(l => l.tipo === "Posterior").length > 0 ? liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.horario)[0] : 'Sin Datos'} </label>
+            <label>{liquidaciones.filter(l => l.tipo === "Posterior").length > 0 ? liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.puesto)[0] + " " + liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.horario)[0] : 'Sin Datos'} </label>
             <Button icon="pi pi-angle-double-left" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={() => onSubmitLiquidacionesByTurno(liquidaciones.filter(l => l.tipo === "Posterior"), liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
             <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => onSubmitEliminarLiquidaciones(liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Posterior").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
         </div>
@@ -543,7 +544,7 @@ const Operations = () => {
 
     const headerTurnoAnterior = (
         <div className="table-header-container">
-            <label>{liquidaciones.filter(l => l.tipo === "Anterior").length > 0 ? liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.puesto)[0] + " Turno " + liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.horario)[0] : 'Sin Datos'} </label>
+            <label>{liquidaciones.filter(l => l.tipo === "Anterior").length > 0 ? liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.puesto)[0] + " " + liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.horario)[0] : 'Sin Datos'} </label>
             <Button icon="pi pi-angle-double-right" className="p-button-rounded p-button-outlined mr-2 mb-2" onClick={() => onSubmitLiquidacionesByTurno(liquidaciones.filter(l => l.tipo === "Anterior"), liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
             <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger mr-2 mb-2" onClick={() => onSubmitEliminarLiquidaciones(liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Anterior").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} />
         </div>
