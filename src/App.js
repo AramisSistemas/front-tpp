@@ -16,30 +16,9 @@ import Jornales from './pages/Jornales';
 import Empleados from './pages/Empleados';
 
 //componentes del DEmo
-import Dashboard from './components/Dashboard';
-import ButtonDemo from './components/ButtonDemo';
-import ChartDemo from './components/ChartDemo';
-import Documentation from './components/Documentation';
-import FileDemo from './components/FileDemo';
-import FloatLabelDemo from './components/FloatLabelDemo';
-import FormLayoutDemo from './components/FormLayoutDemo';
-import InputDemo from './components/InputDemo';
-import ListDemo from './components/ListDemo';
-import MenuDemo from './components/MenuDemo';
-import MessagesDemo from './components/MessagesDemo';
-import MiscDemo from './components/MiscDemo';
-import OverlayDemo from './components/OverlayDemo';
-import MediaDemo from './components/MediaDemo';
-import PanelDemo from './components/PanelDemo';
-import TableDemo from './components/TableDemo';
-import TreeDemo from './components/TreeDemo';
-import InvalidStateDemo from './components/InvalidStateDemo';
-import BlocksDemo from './components/BlocksDemo';
-import IconsDemo from './components/IconsDemo';
 
-import Crud from './pages/Crud';
-import EmptyPage from './pages/EmptyPage';
-import TimelineDemo from './pages/TimelineDemo';
+import ChartDemo from './components/ChartDemo';
+
 
 import PrimeReact from 'primereact/api';
 import { Tooltip } from 'primereact/tooltip';
@@ -47,10 +26,7 @@ import { Tooltip } from 'primereact/tooltip';
 import 'primereact/resources/primereact.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
-import 'prismjs/themes/prism-coy.css';
-import './assets/demo/flags/flags.css';
-import './assets/demo/Demos.scss';
-import './assets/layout/layout.scss';
+import 'prismjs/themes/prism-coy.css'; 
 import './App.scss';
 
 const App = () => {
@@ -173,8 +149,8 @@ const App = () => {
         {
             label: 'Operaciones',
             items: [
-                {label: 'Operaciones', icon: 'pi pi-fw pi-server', to: '/operations'},
-                {label: 'Empleados', icon: 'pi pi-fw pi-user', to: '/empleados'}            
+                { label: 'Operaciones', icon: 'pi pi-fw pi-server', to: '/operations' },
+                { label: 'Empleados', icon: 'pi pi-fw pi-user', to: '/empleados' }
             ]
         },
         {
@@ -186,43 +162,7 @@ const App = () => {
         {
             label: 'UI Components', icon: 'pi pi-fw pi-sitemap',
             items: [
-                { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', to: '/formlayout' },
-                { label: 'Input', icon: 'pi pi-fw pi-check-square', to: '/input' },
-                { label: "Float Label", icon: "pi pi-fw pi-bookmark", to: "/floatlabel" },
-                { label: "Invalid State", icon: "pi pi-fw pi-exclamation-circle", to: "invalidstate" },
-                { label: 'Button', icon: 'pi pi-fw pi-mobile', to: '/button' },
-                { label: 'Table', icon: 'pi pi-fw pi-table', to: '/table' },
-                { label: 'List', icon: 'pi pi-fw pi-list', to: '/list' },
-                { label: 'Tree', icon: 'pi pi-fw pi-share-alt', to: '/tree' },
-                { label: 'Panel', icon: 'pi pi-fw pi-tablet', to: '/panel' },
-                { label: 'Overlay', icon: 'pi pi-fw pi-clone', to: '/overlay' },
-                { label: "Media", icon: "pi pi-fw pi-image", to: "/media" },
-                { label: 'Menu', icon: 'pi pi-fw pi-bars', to: '/menu' },
-                { label: 'Message', icon: 'pi pi-fw pi-comment', to: '/messages' },
-                { label: 'File', icon: 'pi pi-fw pi-file', to: '/file' },
                 { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', to: '/chart' },
-                { label: 'Misc', icon: 'pi pi-fw pi-circle-off', to: '/misc' },
-            ]
-        },
-        {
-            label: 'UI Blocks',
-            items: [
-                { label: 'Free Blocks', icon: 'pi pi-fw pi-eye', to: '/blocks', badge: "NEW" },
-                { label: 'All Blocks', icon: 'pi pi-fw pi-globe', url: 'https://www.primefaces.org/primeblocks-react' }
-            ]
-        },
-        {
-            label: 'Icons',
-            items: [
-                { label: 'PrimeIcons', icon: 'pi pi-fw pi-prime', to: '/icons' }
-            ]
-        },
-        {
-            label: 'Pages', icon: 'pi pi-fw pi-clone',
-            items: [
-                { label: 'Crud', icon: 'pi pi-fw pi-user-edit', to: '/crud' },
-                { label: 'Timeline', icon: 'pi pi-fw pi-calendar', to: '/timeline' },
-                { label: 'Empty', icon: 'pi pi-fw pi-circle-off', to: '/empty' }
             ]
         },
         {
@@ -317,29 +257,7 @@ const App = () => {
 
             <div className="layout-main-container">
                 <div className="layout-main">
-                    <Route path="/" exact render={() => <Dashboard colorMode={layoutColorMode} />} />
-                    <Route path="/formlayout" component={FormLayoutDemo} />
-                    <Route path="/input" component={InputDemo} />
-                    <Route path="/floatlabel" component={FloatLabelDemo} />
-                    <Route path="/invalidstate" component={InvalidStateDemo} />
-                    <Route path="/button" component={ButtonDemo} />
-                    <Route path="/table" component={TableDemo} />
-                    <Route path="/list" component={ListDemo} />
-                    <Route path="/tree" component={TreeDemo} />
-                    <Route path="/panel" component={PanelDemo} />
-                    <Route path="/overlay" component={OverlayDemo} />
-                    <Route path="/media" component={MediaDemo} />
-                    <Route path="/menu" component={MenuDemo} />
-                    <Route path="/messages" component={MessagesDemo} />
-                    <Route path="/blocks" component={BlocksDemo} />
-                    <Route path="/icons" component={IconsDemo} />
-                    <Route path="/file" component={FileDemo} />
                     <Route path="/chart" render={() => <ChartDemo colorMode={layoutColorMode} />} />
-                    <Route path="/misc" component={MiscDemo} />
-                    <Route path="/timeline" component={TimelineDemo} />
-                    <Route path="/crud" component={Crud} />
-                    <Route path="/empty" component={EmptyPage} />
-                    <Route path="/documentation" component={Documentation} />
                     {/*  De TPP */}
                     <Route path="/operations" component={Operations} />
                     <Route path="/users" component={Users} />
