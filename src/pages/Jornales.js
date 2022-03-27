@@ -1,34 +1,21 @@
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import moment from 'moment';
 import { Badge } from 'primereact/badge';
 import { Button } from 'primereact/button';
-import { Calendar } from 'primereact/calendar';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
-import { Dialog } from 'primereact/dialog';
-import { Divider } from 'primereact/divider';
-import { Dropdown } from 'primereact/dropdown';
-import { InputNumber } from 'primereact/inputnumber';
-import { InputSwitch } from 'primereact/inputswitch';
 import { InputText } from 'primereact/inputtext';
-import { ProgressBar } from 'primereact/progressbar';
-import { Sidebar } from 'primereact/sidebar';
 import { Skeleton } from 'primereact/skeleton';
 import { SplitButton } from 'primereact/splitbutton';
 import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
-import { default as React, Fragment, useEffect, useRef, useState } from 'react';
-import { set } from 'react-hook-form';
+import { default as React, useEffect, useRef, useState } from 'react';
 import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
-import { liquidacionDelete, liquidacionesAdd, liquidacionesDelete } from '../redux/liquidacionesducks';
 import { messageService } from '../redux/messagesducks';
-import { actualizarManiobra, cerrarManiobra, confirmarManiobra, eliminarManiobra, finalizarManiobra, ingresarManiobra, llaveManiobra, pasarDatosManiobra, reabrirManiobra } from '../redux/operationsducks';
 import { logout } from '../redux/usersducks';
-import { EmpleadoService } from '../service/EmpleadoService';
 import { OperationService } from '../service/OperationService';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import moment from 'moment';
 
 const Jornales = () => {
   const dispatch = useDispatch();
@@ -46,7 +33,8 @@ const Jornales = () => {
   const [maniobra, setManiobra] = useState([]);
   const [liquidaciones, setLiquidaciones] = useState([]);
   const [detalleLiquidaciones, setDetalleLiquidaciones] = useState([]);
-  const [selectedJornales, setSelectedJornales] = useState([])
+  const [selectedJornales, setSelectedJornales] = useState([]);
+  const [jornalActivo, setJornalActivo] = useState(null);
   const [jornalesFilter, setJornalesFilter] = useState(null);
   const [maniobrasFilter, setManiobrasFilter] = useState(null);
   const [expandedRows, setExpandedRows] = useState(null);
@@ -57,12 +45,12 @@ const Jornales = () => {
     {
       label: 'Pdf',
       icon: 'pi pi-file-pdf',
-      command: () => { exportarJornalesPdf() }
+      command: () => { exportarJornalPdf() }
     },
     {
       label: 'Excel',
       icon: 'pi pi-file-excel',
-      command: () => { console.log(selectedJornales) }
+      command: () => { console.log(jornalActivo) }
     },
     {
       label: 'Txt',
@@ -188,14 +176,122 @@ const Jornales = () => {
       doc.text("DUPLICADO             Firma del Empleado", limHor / 2 + 6, pos + 40 + (limVer * (item - 1)));
       item += 1;
     });
-    doc.save("jornales.pdf")
+    doc.save("jornales.pdf");
+    setSelectedJornales([]);
+  }
+
+  const exportarJornalPdf = () => {
+    var limHor = 210;
+    var limVer = 148.5;
+    let item = 1;
+    var doc = new jsPDF();
+    let sj = jornalActivo;
+    let man = maniobra.filter(m => m.idManiobra === sj.maniobra)
+    let det = detalleLiquidaciones.filter(d => d.liquidacion === sj.liquidacion)
+
+    if (item > 2) {
+      item = 1;
+      doc.addPage();
+    }
+    doc.setFontSize(20);
+    doc.setFont("Times", "BoldItalic");
+    doc.text(empresa[0].razon, 7, 8 + (limVer * (item - 1)));
+
+    doc.setFontSize(10);
+    doc.setFont("Times", "Roman");
+    doc.text('Cuit:' + empresa[0].cuit, 40, 7 + (limVer * (item - 1)));
+    doc.text('Domicilio: ' + empresa[0].domicilio, 40, 10 + (limVer * (item - 1)));
+
+    doc.line(0, 12 + (limVer * (item - 1)), 210, 12 + (limVer * (item - 1))) // horizontal line logo  
+    doc.line(0, 148.5, 210, 148.5) // horizontal MEDIA  
+    doc.line(105, 0, 105, 297) // vertical MEDIA 
+
+    doc.setFont("Times", "Bold");
+    doc.setFontSize(10);
+    doc.text("Fecha: " + moment(man[0].fecha).format('D/MM/yyyy') + " Turno: " + man[0].horario + " " + operacion.destino, 5, 16 + (limVer * (item - 1)));
+    doc.text("Puesto: " + sj.puesto + "     Llave: " + sj.llave + "     Liq: " + sj.liquidacion, 5, 20 + (limVer * (item - 1)));
+    doc.text("Empleado: " + sj.nombre + " (" + sj.cuit + ")", 5, 25 + (limVer * (item - 1)));
+
+    doc.setDrawColor(0);
+    doc.setFillColor(238, 238, 238);
+    doc.roundedRect(5, 26 + (limVer * (item - 1)), limHor / 2 - 8, 7, 2, 2, "FD");
+    doc.text("Concepto", 6, 30 + (limVer * (item - 1)));
+    doc.text("% Un", 50, 30 + (limVer * (item - 1)));
+    doc.text("Haberes", 63, 30 + (limVer * (item - 1)));
+    doc.text("Descuentos", 83, 30 + (limVer * (item - 1)));
+    doc.setFont("Times", "Roman");
+
+    let pos = 37;
+    det.forEach(x => {
+      doc.text(x.concepto, 5, pos + (limVer * (item - 1)));
+      doc.text(x.cantidad.toString(), 53, pos + (limVer * (item - 1)), "center");
+      x.haber ? doc.text("$ " + x.monto.toString(), 62, pos + (limVer * (item - 1)), "left") : doc.text("$ " + x.monto.toString(), 83, pos + (limVer * (item - 1)), "left");
+      pos += 4;
+    });
+    doc.setFillColor(238, 238, 238);
+    doc.roundedRect(5, pos + (limVer * (item - 1)), limHor / 2 - 8, 26, 2, 2, "FD");
+    doc.setFont("Times", "Bold");
+    doc.text("TOTALES", 30, pos + 4 + (limVer * (item - 1)));
+    doc.text("$ " + sj.haberes, 60, pos + 4 + (limVer * (item - 1)));
+    doc.text("$ " + sj.descuentos, 80, pos + 4 + (limVer * (item - 1)));
+    doc.text("NETO LIQUIDACION $ " + sj.neto, 6, pos + 10 + (limVer * (item - 1)));
+    doc.text(sj.enLetras.substring(0, 100), 6, pos + 14 + (limVer * (item - 1)));
+    doc.text(sj.enLetras.substring(101, sj.enLetras.lenght), 6, pos + 18 + (limVer * (item - 1)));
+    doc.text("Depositados en CBU " + sj.cbu, 6, pos + 23 + (limVer * (item - 1)));
+    doc.text("ORIGINAL             Firma del Empleador", 6, pos + 40 + (limVer * (item - 1)));
+    //---------------------------------------------------------------------------------------------//
+    doc.setFontSize(20);
+    doc.setFont("Times", "BoldItalic");
+    doc.text(empresa[0].razon, limHor / 2 + 7, 8 + (limVer * (item - 1)));
+
+    doc.setFontSize(10);
+    doc.setFont("Times", "Roman");
+    doc.text('Cuit:' + empresa[0].cuit, limHor / 2 + 40, 7 + (limVer * (item - 1)));
+    doc.text('Domicilio: ' + empresa[0].domicilio, limHor / 2 + 40, 10 + (limVer * (item - 1)));
+
+    doc.setFont("Times", "Bold");
+    doc.setFontSize(10);
+    doc.text("Fecha: " + moment(man[0].fecha).format('D/MM/yyyy') + " Turno: " + man[0].horario + " " + operacion.destino, limHor / 2 + 5, 16 + (limVer * (item - 1)));
+    doc.text("Puesto: " + sj.puesto + "     Llave: " + sj.llave + "     Liq: " + sj.liquidacion, limHor / 2 + 5, 20 + (limVer * (item - 1)));
+    doc.text("Empleado: " + sj.nombre + " (" + sj.cuit + ")", limHor / 2 + 5, 25 + (limVer * (item - 1)));
+
+    doc.setDrawColor(0);
+    doc.setFillColor(238, 238, 238);
+    doc.roundedRect(limHor / 2 + 5, 26 + (limVer * (item - 1)), 98, 7, 2, 2, "FD");
+    doc.text("Concepto", limHor / 2 + 6, 30 + (limVer * (item - 1)));
+    doc.text("% Un", limHor / 2 + 50, 30 + (limVer * (item - 1)));
+    doc.text("Haberes", limHor / 2 + 63, 30 + (limVer * (item - 1)));
+    doc.text("Descuentos", limHor / 2 + 83, 30 + (limVer * (item - 1)));
+    doc.setFont("Times", "Roman");
+
+    pos = 37;
+    det.forEach(x => {
+      doc.text(x.concepto, limHor / 2 + 5, pos + (limVer * (item - 1)));
+      doc.text(x.cantidad.toString(), limHor / 2 + 52, pos + (limVer * (item - 1)), "center");
+      x.haber ? doc.text("$ " + x.monto.toString(), limHor / 2 + 62, pos + (limVer * (item - 1)), "left") : doc.text("$ " + x.monto.toString(), limHor / 2 + 83, pos + (limVer * (item - 1)), "left");
+      pos += 4;
+    });
+    doc.setFillColor(238, 238, 238);
+    doc.roundedRect(limHor / 2 + 5, pos + (limVer * (item - 1)), 98, 26, 2, 2, "FD");
+    doc.setFont("Times", "Bold");
+    doc.text("TOTALES", limHor / 2 + 30 + (limVer * (item - 1)), pos + 4);
+    doc.text("$ " + sj.haberes, limHor / 2 + 62, pos + 4 + (limVer * (item - 1)));
+    doc.text("$ " + sj.descuentos, limHor / 2 + 82, pos + 4 + (limVer * (item - 1)));
+    doc.text("NETO LIQUIDACION $ " + sj.neto, limHor / 2 + 6, pos + 10 + (limVer * (item - 1)));
+    doc.text(sj.enLetras.substring(0, 100), limHor / 2 + 6, pos + 14 + (limVer * (item - 1)));
+    doc.text(sj.enLetras.substring(101, sj.enLetras.lenght), limHor / 2 + 6, pos + 18 + (limVer * (item - 1)));
+    doc.text("Depositados en CBU " + sj.cbu, limHor / 2 + 6, pos + 23 + (limVer * (item - 1)));
+    doc.text("DUPLICADO             Firma del Empleado", limHor / 2 + 6, pos + 40 + (limVer * (item - 1)));
+    item += 1;
+
+    doc.save(sj.nombre + ".pdf");
+    setJornalActivo(null);
   }
 
   const expandAll = () => {
     let _expandedRows = {};
     maniobra.forEach(p => _expandedRows[`${p.idManiobra}`] = true);
     setExpandedRows(_expandedRows);
-    console.log(operacion)
   }
 
   const collapseAll = () => {
@@ -212,7 +308,7 @@ const Jornales = () => {
         <div className="flex align-items-center export-buttons">
           <Button type="button" icon="pi pi-file" onClick={() => console.log(selectedJornales)} className="mr-2" data-pr-tooltip="CSV" />
           <Button type="button" icon="pi pi-file-excel" onClick={() => console.log(selectedJornales)} className="p-button-success mr-2" data-pr-tooltip="XLS" />
-          <Button type="button" icon="pi pi-file-pdf" onClick={() => console.log(selectedJornales)} className="p-button-warning mr-2" data-pr-tooltip="PDF" />
+          <Button type="button" icon="pi pi-file-pdf" onClick={() => exportarJornalesPdf()} className="p-button-warning mr-2" data-pr-tooltip="PDF" />
         </div>
         <span className="block mt-2 md:mt-0 p-input-icon-left">
           <i className="pi pi-search" />
@@ -268,7 +364,7 @@ const Jornales = () => {
   }
 
   const actionJornalesBodyTemplate = (rowData) => {
-    return <SplitButton icon="pi pi-print" model={jornalesItems} menuStyle={{ width: '12rem' }} className="p-button-success mr-2 mb-2" ></SplitButton>;
+    return <SplitButton icon="pi pi-print" model={jornalesItems} menuStyle={{ width: '12rem' }} onShow={() => setJornalActivo(rowData)} className="p-button-success mr-2 mb-2" ></SplitButton>;
   }
 
   const fechaManiobraTemplate = (rowData) => {

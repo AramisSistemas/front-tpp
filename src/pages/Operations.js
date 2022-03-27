@@ -19,6 +19,7 @@ import { default as React, Fragment, useEffect, useRef, useState } from 'react';
 import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import EmpleadoAdd from '../components/EmpleadoAdd';
 import { liquidacionDelete, liquidacionesAdd, liquidacionesDelete } from '../redux/liquidacionesducks';
 import { messageService } from '../redux/messagesducks';
 import { actualizarManiobra, cerrarManiobra, confirmarManiobra, eliminarManiobra, finalizarManiobra, ingresarManiobra, llaveManiobra, pasarDatosManiobra, reabrirManiobra } from '../redux/operationsducks';
@@ -96,7 +97,7 @@ const Operations = () => {
         },
     ];
 
-    const menuJornales = (datosOperacion) => { 
+    const menuJornales = (datosOperacion) => {
         dispatch(pasarDatosManiobra(datosOperacion));
         history.push("/jornales");
     }
@@ -378,7 +379,7 @@ const Operations = () => {
     const empleadoNombreTemplate = (rowData) => {
         return <Badge size="large" value={rowData.nombre} severity={rowData.color} style={{ textAlign: 'left' }}></Badge>
     }
-    
+
     const empleadoLlaveTemplate = (rowData) => {
         return <Badge size="medium" value={rowData.llave} severity={rowData.llave > 1 ? 'danger' :
             rowData.llave === 1 ? 'success' : 'warning'}
@@ -552,12 +553,12 @@ const Operations = () => {
 
     const headerEmpleados = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">Empleados</h5>
+            <EmpleadoAdd></EmpleadoAdd>
             <Button icon="pi pi-angle-double-right" onClick={() => onSubmitLiquidaciones(liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.idPuesto)[0], liquidaciones.filter(l => l.tipo === "Actual").map(m => m.operacion)[0])} label={"Liquidar Los Seleccionados"} className="p-button-rounded p-button-success mr-2 mb-2" />
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setEmpleadosFilter(e.target.value)} placeholder="Buscar..." />
-            </span>
+            </span> 
         </div>
     );
 

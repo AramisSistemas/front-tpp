@@ -13,6 +13,7 @@ import { AppConfig } from './AppConfig';
 import Operations from './pages/Operations';
 import Users from './pages/Users';
 import Jornales from './pages/Jornales';
+import Empleados from './pages/Empleados';
 
 //componentes del DEmo
 import Dashboard from './components/Dashboard';
@@ -171,9 +172,10 @@ const App = () => {
         },
         {
             label: 'Operaciones',
-            items: [{
-                label: 'Operaciones', icon: 'pi pi-fw pi-server', to: '/operations'
-            }]
+            items: [
+                {label: 'Operaciones', icon: 'pi pi-fw pi-server', to: '/operations'},
+                {label: 'Empleados', icon: 'pi pi-fw pi-user', to: '/empleados'}            
+            ]
         },
         {
             label: 'Opciones',
@@ -342,6 +344,7 @@ const App = () => {
                     <Route path="/operations" component={Operations} />
                     <Route path="/users" component={Users} />
                     <Route path="/jornales" component={Jornales} />
+                    <Route path="/empleados" component={Empleados} />
                 </div>
 
                 <AppFooter layoutColorMode={layoutColorMode} />
