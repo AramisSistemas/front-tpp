@@ -26,7 +26,10 @@ import { Tooltip } from 'primereact/tooltip';
 import 'primereact/resources/primereact.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
-import 'prismjs/themes/prism-coy.css'; 
+import 'prismjs/themes/prism-coy.css';
+import './assets/demo/flags/flags.css';
+import './assets/demo/Demos.scss';
+import './assets/layout/layout.scss';
 import './App.scss';
 
 const App = () => {

@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import {Button} from "primereact/button";
 
 export const AppConfig = (props) => {
-
+ 
     const [active, setActive] = useState(false);
     const [scale, setScale] = useState(14);
     const [scales] = useState([12,13,14,15,16]);
