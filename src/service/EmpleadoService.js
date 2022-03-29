@@ -16,4 +16,5 @@ export class EmpleadoService {
         const res = await request.get('Empleados/EmbargosGet'); 
          return res.data; 
      }
+ 
 }

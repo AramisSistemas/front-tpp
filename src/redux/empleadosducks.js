@@ -96,6 +96,28 @@ export const actualizarEmpleado = (data) => async (dispatch) => {
         });
 }
 
+export const autorizarEmbargo = (data) => async (dispatch) => {   
+    dispatch({
+        type: LOADING
+    })
+    await request.patch('Empleados/EmbargoConfirm/?embargo='+data)
+        .then(function (response) {
+            dispatch({
+                type: EMPLEADO_EXITO
+            })
+            dispatch(messageService(true, 'Correcto', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: EMPLEADO_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+            if (error.response.status === 401) {
+                dispatch(logout);
+            }
+        });
+}
+
 export const eliminarEmpleado = (data) => async (dispatch) => {
 
     await request.delete('Empleados/Delete/?id=' + data)
@@ -104,6 +126,26 @@ export const eliminarEmpleado = (data) => async (dispatch) => {
                 type: EMPLEADO_EXITO
             })
             dispatch(messageService(true, 'Empleado Eliminado ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: EMPLEADO_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+            if (error.response.status === 401) {
+                dispatch(logout);
+            }
+        });
+}
+
+export const eliminarEmbargo = (data) => async (dispatch) => {
+
+    await request.delete('Empleados/EmbargoDelete/?id=' + data)
+        .then(function (response) {
+            dispatch({
+                type: EMPLEADO_EXITO
+            })
+            dispatch(messageService(true, 'Correcto', response.status));
         })
         .catch(function (error) {
             dispatch({

@@ -14,7 +14,7 @@ import Operations from './pages/Operations';
 import Users from './pages/Users';
 import Jornales from './pages/Jornales';
 import Empleados from './pages/Empleados';
-
+import Embargos from './pages/Embargos';
 //componentes del DEmo
 
 import ChartDemo from './components/ChartDemo';
@@ -157,6 +157,13 @@ const App = () => {
             ]
         },
         {
+            label: 'Administración',
+            items: [              
+                { label: 'Pagos', icon: 'pi pi-fw pi-dollar', to: '/pagos' },
+                { label: 'Embargos', icon: 'pi pi-fw pi-list', to: '/embargos' }
+            ]
+        },
+        {
             label: 'Opciones',
             items: [{
                 label: 'Usuarios', icon: 'pi pi-fw pi-user-edit', to: '/users'
@@ -266,6 +273,7 @@ const App = () => {
                     <Route path="/users" component={Users} />
                     <Route path="/jornales" component={Jornales} />
                     <Route path="/empleados" component={Empleados} />
+                    <Route path="/embargos" component={Embargos} />
                 </div>
 
                 <AppFooter layoutColorMode={layoutColorMode} />

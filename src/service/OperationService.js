@@ -12,6 +12,11 @@ export class OperationService {
         return res.data;
     }
 
+    async GetLiquidacionPayPendientes() {
+        const res = await request.get('Operations/LiquidacionesPayPending');
+        return res.data;
+    }
+
     async GetLiquidacionesByOp(operacion) {
         const res = await request.get('Operations/LiquidacionesByOp/?operacion=' + operacion);
         return res.data;
