@@ -1,4 +1,4 @@
-import { Badge } from 'primereact/badge';
+import { now } from 'moment';
 import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Column } from 'primereact/column';
@@ -11,15 +11,12 @@ import { Skeleton } from 'primereact/skeleton';
 import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
 import { default as React, Fragment, useEffect, useRef, useState } from 'react';
-import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
+import EmpleadoAdd from '../components/EmpleadoAdd';
+import { actualizarEmpleado, addEmbargo, eliminarEmpleado } from '../redux/empleadosducks';
 import { messageService } from '../redux/messagesducks';
 import { logout } from '../redux/usersducks';
-import { actualizarEmpleado, addEmbargo, eliminarEmpleado } from '../redux/empleadosducks';
 import { EmpleadoService } from '../service/EmpleadoService';
-import { UserService } from '../service/UserService';
-import EmpleadoAdd from '../components/EmpleadoAdd'; 
-import { now } from 'moment';
 const Empleados = () => {
     const dispatch = useDispatch();
 
@@ -95,21 +92,21 @@ const Empleados = () => {
             toast.current.show({ severity: 'warn', summary: 'Verifique', detail: 'No puede descontarse mas del 50%', life: 3000 });
             valor = 50;
         }
-        if (nombre === 'concepto' && valor.length  > 30) {
+        if (nombre === 'concepto' && valor.length > 30) {
             toast.current.show({ severity: 'warn', summary: 'Verifique', detail: 'No mas de 30 Caracteres', life: 3000 });
-            valor = valor.substring(0,30);
+            valor = valor.substring(0, 30);
         }
-       
+
         let _embargomodel = { ...embargomodel };
-        if (nombre === 'permanente' && valor ===true) {
-            _embargomodel['total'] = '1000000'; 
-        } 
-        if (nombre === 'anticipo' && valor ===true) {
-            _embargomodel['concepto'] = 'Anticipo'; 
-        } 
+        if (nombre === 'permanente' && valor === true) {
+            _embargomodel['total'] = '1000000';
+        }
+        if (nombre === 'anticipo' && valor === true) {
+            _embargomodel['concepto'] = 'Anticipo';
+        }
         _embargomodel[`${nombre}`] = valor;
         setEmbargomodel(_embargomodel);
-       
+
     }
 
     const onSubmitEmbargo = (e) => {
@@ -301,11 +298,11 @@ const Empleados = () => {
                                     </div>
                                     <div className="field col-3">
                                         <h5>Permanente</h5>
-                                        <InputSwitch checked={embargomodel.permanente} onChange={(e) => { actualizarDatosEmbargo("permanente", e.value)}} />
+                                        <InputSwitch checked={embargomodel.permanente} onChange={(e) => { actualizarDatosEmbargo("permanente", e.value) }} />
                                     </div>
                                     <div className="field col-3">
                                         <h5>Anticipo</h5>
-                                        <InputSwitch checked={embargomodel.anticipo} onChange={(e) => { actualizarDatosEmbargo("anticipo", e.value)}} />
+                                        <InputSwitch checked={embargomodel.anticipo} onChange={(e) => { actualizarDatosEmbargo("anticipo", e.value) }} />
                                     </div>
                                     <div className="field col-8">
                                         <h5>Finaliza</h5>

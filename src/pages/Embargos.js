@@ -11,6 +11,8 @@ import { autorizarEmbargo, eliminarEmbargo } from '../redux/empleadosducks';
 import { messageService } from '../redux/messagesducks';
 import { logout } from '../redux/usersducks';
 import { EmpleadoService } from '../service/EmpleadoService';
+import { Moment } from 'react-moment';
+
 const Embargos = () => {
     const dispatch = useDispatch();
 
@@ -49,6 +51,10 @@ const Embargos = () => {
             </span>
         </div>
     );
+
+    const fechaFinTemplate = (rowData) => {
+        return <Moment format='D/MM/yyyy'>{rowData.fin}</Moment>
+      }
 
     const accept = (data) => { 
         dispatch(autorizarEmbargo(data)).then(
@@ -95,7 +101,7 @@ const Embargos = () => {
                         <Column field="monto" header="Monto %" sortable />
                         <Column field="total" header="Total" sortable />
                         <Column field="concepto" header="Concepto" sortable />
-                        <Column field="fin" header="Finaliza" sortable />
+                        <Column field="fin" header="Finaliza" sortable body={fechaFinTemplate} />
                         <Column field="operador" header="Operador" sortable />
                         <Column headerStyle={{ width: '4rem' }} body={actionEmbargoBodyTemplate}></Column>
                     </DataTable>

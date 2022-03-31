@@ -558,7 +558,7 @@ const Operations = () => {
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setEmpleadosFilter(e.target.value)} placeholder="Buscar..." />
-            </span> 
+            </span>
         </div>
     );
 
