@@ -5,13 +5,11 @@ import { confirmDialog } from 'primereact/confirmdialog';
 import { DataTable } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
 import { Skeleton } from 'primereact/skeleton';
-import { Toast } from 'primereact/toast';
 import { default as React, useEffect, useRef, useState } from 'react';
 import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
 import { liquidacionesPay } from '../redux/liquidacionesducks';
 import { messageService } from '../redux/messagesducks';
-import { logout } from '../redux/usersducks';
 import { OperationService } from '../service/OperationService';
 
 const Pagos = () => {
@@ -22,12 +20,6 @@ const Pagos = () => {
     const activo = useSelector(store => store.users.activo);
     const perfil = useSelector(store => store.users.perfil);
 
-    const cantidad = useSelector(store => store.operations.cantidad);
-    const cuit = useSelector(store => store.operations.cuit);
-    const lote = useSelector(store => store.operations.lote);
-
-    const message = useSelector(store => store.messages.message)
-    const status = useSelector(store => store.messages.status)
     const toast = useRef();
     const dt = useRef(null);
 
@@ -39,7 +31,7 @@ const Pagos = () => {
     const [pagosFilter, setPagosFilter] = useState(null);
 
     const fetchPagos = async () => {
-        setLoadingPagos();
+        setLoadingPagos(true);
         await operationService.GetLiquidacionPayPendientes().then(data => {
             setPagos(data.liquidacionesPagos);
             setLiquidaciones(data.liquidacionModel);
@@ -124,21 +116,9 @@ const Pagos = () => {
 
     useEffect(() => {
         if (activo === true && perfil > 1) {
-            fetchPagos().catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
-            if (message !== '' && message !== null) {
-                switch (status) {
-                    case 200: toast.current.show({ severity: 'success', summary: 'Correcto', detail: message, life: 3000 });
-                        break;
-                    case 400: toast.current.show({ severity: 'warn', summary: 'Verifique', detail: message, life: 3000 });
-                        break;
-                    case 401: toast.current.show({ severity: 'error', summary: 'Autenticacion', detail: message, life: 3000 });
-                        dispatch(logout());
-                        break;
-                    default: toast.current.show({ severity: 'info', summary: 'Atendeme', detail: message, life: 3000 });
-                }
-            }
+            fetchPagos();
         }
-    }, [activo, message, status, dispatch]);
+    }, [activo]);
 
     return (
         activo && perfil > 1 ? (
@@ -161,7 +141,6 @@ const Pagos = () => {
                         <Column field="total" header="Total" sortable />
                     </DataTable>
                 </div>
-                <Toast ref={toast} />
             </div>
         ) : (<div className="card">
             <h4>Requiere Autenticación</h4>

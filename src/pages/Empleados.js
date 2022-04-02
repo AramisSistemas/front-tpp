@@ -15,18 +15,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import EmpleadoAdd from '../components/EmpleadoAdd';
 import { actualizarEmpleado, addEmbargo, eliminarEmpleado } from '../redux/empleadosducks';
 import { messageService } from '../redux/messagesducks';
-import { logout } from '../redux/usersducks';
 import { EmpleadoService } from '../service/EmpleadoService';
+
 const Empleados = () => {
     const dispatch = useDispatch();
 
     const empleadoService = new EmpleadoService();
 
     const activo = useSelector(store => store.users.activo);
-
-    const message = useSelector(store => store.messages.message)
-    const status = useSelector(store => store.messages.status)
-    const toast = useRef();
+    const toast = useRef(null);
 
     const [oSociales, setOsociales] = useState({ id: null, detalle: null });
     const [empleados, setEmpleados] = useState([]);
@@ -114,7 +111,7 @@ const Empleados = () => {
         let data = { ...embargomodel };
         dispatch(addEmbargo(data));
         // limpiar campos
-        setEmbargomodel([])
+        setEmbargomodel([]);
         setDisplayembargo(false);
     }
 
@@ -123,8 +120,9 @@ const Empleados = () => {
         let data = { ...empleadomodel };
         dispatch(actualizarEmpleado(data));
         // limpiar campos
-        setEmpleadomodel([])
+        setEmpleadomodel([]);
         setDisplayupdate(false);
+        fetchEmpleados();
     }
 
     const activoBodyTemplate = (rowData) => {
@@ -150,25 +148,17 @@ const Empleados = () => {
         </div>
     );
 
+    useEffect(() => {
+        if (activo) {
+            fetchEmpleados();
+        }
+    }, [setEmpleados, activo]);
 
     useEffect(() => {
-        if (activo === true) {
+        if (activo) {
             fetchOsociales();
-            fetchEmpleados().catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
-            if (message !== '' && message !== null) {
-                switch (status) {
-                    case 200: toast.current.show({ severity: 'success', summary: 'Correcto', detail: message, life: 3000 });
-                        break;
-                    case 400: toast.current.show({ severity: 'warn', summary: 'Verifique', detail: message, life: 3000 });
-                        break;
-                    case 401: toast.current.show({ severity: 'error', summary: 'Autenticacion', detail: message, life: 3000 });
-                        dispatch(logout());
-                        break;
-                    default: toast.current.show({ severity: 'info', summary: 'Atendeme', detail: message, life: 3000 });
-                }
-            }
         }
-    }, [activo, message, status, dispatch]);
+    }, [setOsociales, , activo]);
 
     return (
         activo ? (
@@ -310,15 +300,13 @@ const Empleados = () => {
                                         <Calendar name="fin" value={embargomodel.fin} showIcon showButtonBar dateFormat='dd/mm/yy'
                                             onChange={(e) => actualizarDatosEmbargo("fin", e.value)} />
                                     </div>
-
-
                                     <Button label="Alta"></Button>
                                 </div>
                             </form>
                         </Fragment>
                     </Dialog>) : <></>}
+                    <Toast ref={toast} />
                 </div>
-                <Toast ref={toast} />
             </div>
         ) : (<div className="card">
             <h4>Requiere Autenticación</h4>

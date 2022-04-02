@@ -8,13 +8,12 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputSwitch } from 'primereact/inputswitch';
 import { InputText } from 'primereact/inputtext';
 import { Skeleton } from 'primereact/skeleton';
-import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
-import { default as React, Fragment, useEffect, useRef, useState } from 'react';
+import { default as React, Fragment, useEffect, useState } from 'react';
 import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
 import { messageService } from '../redux/messagesducks';
-import { actualizarUsuario, eliminarUser, logout } from '../redux/usersducks';
+import { actualizarUsuario, eliminarUser } from '../redux/usersducks';
 import { UserService } from '../service/UserService';
 const Users = () => {
     const dispatch = useDispatch();
@@ -23,10 +22,6 @@ const Users = () => {
 
     const activo = useSelector(store => store.users.activo);
     const perfil = useSelector(store => store.users.perfil);
-
-    const message = useSelector(store => store.messages.message)
-    const status = useSelector(store => store.messages.status)
-    const toast = useRef();
 
     const [perfiles, setPerfiles] = useState({ id: null, rol: null });
     const [users, setUsers] = useState([]);
@@ -45,7 +40,7 @@ const Users = () => {
         );
     }
 
-    const onSubmitPreUpdate = (rowData) => { 
+    const onSubmitPreUpdate = (rowData) => {
         userService.getPerfiles().then(data => {
             setPerfiles(data)
         });
@@ -92,21 +87,9 @@ const Users = () => {
 
     useEffect(() => {
         if (activo === true && perfil === 3) {
-            fetchUsers().catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
-            if (message !== '' && message !== null) {
-                switch (status) {
-                    case 200: toast.current.show({ severity: 'success', summary: 'Correcto', detail: message, life: 3000 });
-                        break;
-                    case 400: toast.current.show({ severity: 'warn', summary: 'Verifique', detail: message, life: 3000 });
-                        break;
-                    case 401: toast.current.show({ severity: 'error', summary: 'Autenticacion', detail: message, life: 3000 });
-                        dispatch(logout());
-                        break;
-                    default: toast.current.show({ severity: 'info', summary: 'Atendeme', detail: message, life: 3000 });
-                }
-            }
+            fetchUsers();
         }
-    }, [activo, message, status, perfil, dispatch]);
+    }, [activo, perfil]);
 
     return (
         activo && perfil === 3 ? (
@@ -166,7 +149,6 @@ const Users = () => {
                         </Fragment>
                     </Dialog>) : <></>}
                 </div>
-                <Toast ref={toast} />
             </div>
         ) : (<div className="card">
             <h4>Requiere Autenticación</h4>

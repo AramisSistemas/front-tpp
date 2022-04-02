@@ -1,4 +1,3 @@
-import { rejects } from 'assert';
 import request from '../context/interceptor';
 import { messageService } from './messagesducks';
 

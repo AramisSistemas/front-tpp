@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Route, useLocation } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
-
+import Message from './components/Message';
 import { AppTopbar } from './AppTopbar';
 import { AppFooter } from './AppFooter';
 import { AppMenu } from './AppMenu';
@@ -16,6 +16,7 @@ import Jornales from './pages/Jornales';
 import Empleados from './pages/Empleados';
 import Embargos from './pages/Embargos';
 import Pagos from './pages/Pagos';
+import Composition from './pages/Composition';
 //componentes del DEmo
 
 import ChartDemo from './components/ChartDemo';
@@ -278,6 +279,7 @@ const App = () => {
                     <Route path="/empleados" component={Empleados} />
                     <Route path="/embargos" component={Embargos} />
                     <Route path="/pagos" component={Pagos} />
+                    <Route path="/composicionManiobra" component={Composition} />                    
                 </div>
 
                 <AppFooter layoutColorMode={layoutColorMode} />
@@ -289,7 +291,7 @@ const App = () => {
             <CSSTransition classNames="layout-mask" timeout={{ enter: 200, exit: 200 }} in={mobileMenuActive} unmountOnExit>
                 <div className="layout-mask p-component-overlay"></div>
             </CSSTransition>
-
+            <Message></Message>
         </div>
     );
 

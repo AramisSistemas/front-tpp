@@ -8,13 +8,11 @@ import { DataTable } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
 import { Skeleton } from 'primereact/skeleton';
 import { SplitButton } from 'primereact/splitbutton';
-import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
 import { default as React, useEffect, useRef, useState } from 'react';
 import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
 import { messageService } from '../redux/messagesducks';
-import { logout } from '../redux/usersducks';
 import { OperationService } from '../service/OperationService';
 
 const Jornales = () => {
@@ -23,11 +21,8 @@ const Jornales = () => {
 
   const activo = useSelector(store => store.users.activo);
   const operacion = useSelector(store => store.operations.datosManiobra)
-  const message = useSelector(store => store.messages.message)
-  const status = useSelector(store => store.messages.status)
-  const toast = useRef();
-  const dt = useRef(null);
 
+  const dt = useRef(null);
 
   const [empresa, setEmpresa] = useState([]);
   const [maniobra, setManiobra] = useState([]);
@@ -415,22 +410,8 @@ const Jornales = () => {
   }
 
   useEffect(() => {
-    if (activo === true && operacion !== null) {
-      fetchLiquidaciones(operacion.id).catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
-      if (message !== '' && message !== null) {
-        switch (status) {
-          case 200: toast.current.show({ severity: 'success', summary: 'Correcto', detail: message, life: 3000 });
-            break;
-          case 400: toast.current.show({ severity: 'warn', summary: 'Verifique', detail: message, life: 3000 });
-            break;
-          case 401: toast.current.show({ severity: 'error', summary: 'Autenticacion', detail: message, life: 3000 });
-            dispatch(logout());
-            break;
-          default: toast.current.show({ severity: 'info', summary: 'Atendeme', detail: message, life: 3000 });
-        }
-      }
-    }
-  }, [activo, message, status, dispatch]);
+    fetchLiquidaciones(operacion.id);
+  }, [setLiquidaciones]);
 
   return (
     activo ? (
@@ -452,7 +433,6 @@ const Jornales = () => {
             <Column headerStyle={{ width: '4rem' }} ></Column>
           </DataTable>
         </div>
-        <Toast ref={toast} />
       </div>
     )
       : (<div className="card">

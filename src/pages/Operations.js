@@ -13,7 +13,6 @@ import { ProgressBar } from 'primereact/progressbar';
 import { Sidebar } from 'primereact/sidebar';
 import { Skeleton } from 'primereact/skeleton';
 import { SplitButton } from 'primereact/splitbutton';
-import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
 import { default as React, Fragment, useEffect, useRef, useState } from 'react';
 import Moment from 'react-moment';
@@ -35,11 +34,6 @@ const Operations = () => {
     const empleadoService = new EmpleadoService();
 
     const activo = useSelector(store => store.users.activo);
-
-    const message = useSelector(store => store.messages.message)
-    const status = useSelector(store => store.messages.status)
-    const toast = useRef();
-
 
     //genericas
     const [turnos, setTurnos] = useState({ value: null, label: null });
@@ -128,14 +122,18 @@ const Operations = () => {
     const fetchOperations = async () => {
         setLoadingOp(true)
         await operationService.getAll().then(data => { setOperations(data) }).catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
-        await operationService.getManiobrasActivas(false).then(data => { setManiobrasActivas(data) }).catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
         setLoadingOp(false);
+    }
+
+    const fetchManiobras = async () => {
+        await operationService.getManiobrasActivas(false).then(data => { setManiobrasActivas(data) }).catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
     }
 
     const actualizarTablas = () => {
         let _expandedRows = expandedRows;
         collapseAll();
         fetchOperations();
+        fetchManiobras();
         setExpandedRows(_expandedRows);
     }
 
@@ -698,21 +696,10 @@ const Operations = () => {
 
     useEffect(() => {
         if (activo === true) {
-            fetchOperations().catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
-            if (message !== '' && message !== null) {
-                switch (status) {
-                    case 200: toast.current.show({ severity: 'success', summary: 'Correcto', detail: message, life: 3000 });
-                        break;
-                    case 400: toast.current.show({ severity: 'warn', summary: 'Verifique', detail: message, life: 3000 });
-                        break;
-                    case 401: toast.current.show({ severity: 'error', summary: 'Autenticacion', detail: message, life: 3000 });
-                        dispatch(logout());
-                        break;
-                    default: toast.current.show({ severity: 'info', summary: 'Atendeme', detail: message, life: 3000 });
-                }
-            }
+            fetchOperations();
+            fetchManiobras();
         }
-    }, [activo, message, status, dispatch]);
+    }, [activo]);
 
     return (
         activo ? (
@@ -755,7 +742,6 @@ const Operations = () => {
                         </form>
                     </Fragment>
                 </Dialog> : <></>}
-                <Toast ref={toast} />
             </div>
         )
             : (<div className="card">

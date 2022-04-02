@@ -6,12 +6,11 @@ import { InputText } from 'primereact/inputtext';
 import { Skeleton } from 'primereact/skeleton';
 import { Toast } from 'primereact/toast';
 import { default as React, useEffect, useRef, useState } from 'react';
+import { Moment } from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
 import { autorizarEmbargo, eliminarEmbargo } from '../redux/empleadosducks';
 import { messageService } from '../redux/messagesducks';
-import { logout } from '../redux/usersducks';
 import { EmpleadoService } from '../service/EmpleadoService';
-import { Moment } from 'react-moment';
 
 const Embargos = () => {
     const dispatch = useDispatch();
@@ -20,8 +19,6 @@ const Embargos = () => {
 
     const activo = useSelector(store => store.users.activo);
 
-    const message = useSelector(store => store.messages.message)
-    const status = useSelector(store => store.messages.status)
     const toast = useRef();
 
     const [embargos, setEmbargos] = useState([]);
@@ -54,37 +51,25 @@ const Embargos = () => {
 
     const fechaFinTemplate = (rowData) => {
         return <Moment format='D/MM/yyyy'>{rowData.fin}</Moment>
-      }
+    }
 
-    const accept = (data) => { 
+    const accept = (data) => {
         dispatch(autorizarEmbargo(data)).then(
             fetchEmbargos());
         toast.current.show({ severity: 'info', summary: 'Confirmando...', detail: 'En proceso...', life: 3000 });
     };
 
-    const reject = (data) => { 
+    const reject = (data) => {
         dispatch(eliminarEmbargo(data)).then(
             fetchEmbargos());
         toast.current.show({ severity: 'info', summary: 'Rechazando...', detail: 'En proceso...', life: 3000 });
     };
 
     useEffect(() => {
-        if (activo === true) {
-            fetchEmbargos().catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
-            if (message !== '' && message !== null) {
-                switch (status) {
-                    case 200: toast.current.show({ severity: 'success', summary: 'Correcto', detail: message, life: 3000 });
-                        break;
-                    case 400: toast.current.show({ severity: 'warn', summary: 'Verifique', detail: message, life: 3000 });
-                        break;
-                    case 401: toast.current.show({ severity: 'error', summary: 'Autenticacion', detail: message, life: 3000 });
-                        dispatch(logout());
-                        break;
-                    default: toast.current.show({ severity: 'info', summary: 'Atendeme', detail: message, life: 3000 });
-                }
-            }
+        if (activo) {
+            fetchEmbargos();
         }
-    }, [activo, message, status, dispatch]);
+    }, [setEmbargos, activo]);
 
     return (
         activo ? (
