@@ -118,7 +118,7 @@ const Pagos = () => {
         if (activo === true && perfil > 1) {
             fetchPagos();
         }
-    }, [activo]);
+    }, [activo,perfil, setPagos]);
 
     return (
         activo && perfil > 1 ? (

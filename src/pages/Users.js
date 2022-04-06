@@ -16,6 +16,7 @@ import { messageService } from '../redux/messagesducks';
 import { actualizarUsuario, eliminarUser } from '../redux/usersducks';
 import { UserService } from '../service/UserService';
 const Users = () => {
+
     const dispatch = useDispatch();
 
     const userService = new UserService();
@@ -35,9 +36,7 @@ const Users = () => {
     }
 
     const onsubmitDelete = (data) => {
-        dispatch(eliminarUser(data)).then(
-            fetchUsers()
-        );
+        dispatch(eliminarUser(data));
     }
 
     const onSubmitPreUpdate = (rowData) => {
@@ -55,11 +54,9 @@ const Users = () => {
     }
 
     const onSubmitUpdate = (e) => {
-        e.preventDefault()
+        e.preventDefault();
         let data = { ...usermodel };
         dispatch(actualizarUsuario(data));
-        // limpiar campos
-        setUsermodel([])
         setDisplayupdate(false);
     }
 
@@ -85,15 +82,14 @@ const Users = () => {
         )
     }
 
-    useEffect(() => {
-        if (activo === true && perfil === 3) {
+    useEffect(() => { 
+        if (activo === true && perfil === 3) { 
             fetchUsers();
         }
     }, [activo, perfil]);
 
     return (
         activo && perfil === 3 ? (
-
             <div className="col-12">
                 <div className="card">
                     <h5>Usuarios</h5>
@@ -113,20 +109,16 @@ const Users = () => {
                                 <input hidden readOnly value={usermodel.id} />
                                 <div className="formgroup-inline">
                                     <div className="field col-12"  >
-                                        <label htmlFor="firstname" className="p-sr-only">Nombre</label>
+                                        <label htmlFor="firstName" className="p-sr-only">Nombre</label>
                                         <InputText type="text" value={usermodel.firstName} placeholder="Nombre" onChange={(e) => actualizarDatosUsuario("firstName", e.target.value)} />
                                     </div>
                                     <div className="field col-12"  >
-                                        <label htmlFor="lastname" className="p-sr-only">Apellido</label>
+                                        <label htmlFor="lastName" className="p-sr-only">Apellido</label>
                                         <InputText type="text" placeholder="Apellido" value={usermodel.lastName} onChange={(e) => actualizarDatosUsuario("lastName", e.target.value)} />
                                     </div>
                                     <div className="field col-12"  >
                                         <label htmlFor="username" className="p-sr-only">Usuario</label>
                                         <InputText type="text" placeholder="Usuario" value={usermodel.username} onChange={(e) => actualizarDatosUsuario("username", e.target.value)} />
-                                    </div>
-                                    <div className="field col-12"  >
-                                        <label htmlFor="password" className="p-sr-only">Password</label>
-                                        <InputText type="password" placeholder="Password" value={usermodel.password} onChange={(e) => actualizarDatosUsuario("password", e.target.value)} />
                                     </div>
                                     <div className="field col-4">
                                         <h5>Confirmado</h5>
@@ -135,7 +127,7 @@ const Users = () => {
                                     <div className="field col-7">
                                         <h5>Perfil</h5>
                                         <Dropdown name="perfil" onChange={(e) => actualizarDatosUsuario("perfil", e.value)} value={usermodel.perfil} options={perfiles} optionValue="id" optionLabel="rol" placeholder="Perfil"
-                                            required={true} />
+                                        />
                                     </div>
                                     <h5>Validez</h5>
                                     <div className="field col-12">

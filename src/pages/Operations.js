@@ -699,7 +699,7 @@ const Operations = () => {
             fetchOperations();
             fetchManiobras();
         }
-    }, [activo]);
+    }, [activo,setOperations,setManiobrasActivas]);
 
     return (
         activo ? (

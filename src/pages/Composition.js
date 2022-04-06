@@ -1,14 +1,19 @@
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
+import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { Skeleton } from 'primereact/skeleton';
-import { default as React, useEffect, useRef, useState } from 'react';
+import { default as React, Fragment, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import CompositionAdd from '../components/CompositionAdd';
+import EsquemaAdd from '../components/EsquemaAdd';
+import ManiobraAdd from '../components/ManiobraAdd';
+import PuestoAdd from '../components/PuestoAdd';
+import { updateComposition } from '../redux/compositionsducks';
 import { messageService } from '../redux/messagesducks';
-import { CompositionService } from '../service/CompositionService';
-
+import { CompositionService } from '../service/CompositionService';  
 const Composition = () => {
 
     const dispatch = useDispatch();
@@ -32,6 +37,7 @@ const Composition = () => {
     const [maniobrasFilter, setManiobrasFilter] = useState(null);
     const [puestosFilter, setPuestosFilter] = useState(null);
     const [visible, setVisible] = useState(false);
+    const [compositionModel, setCompositionModel] = useState([]);
 
     const fetchCompositions = async () => {
         setLoadingCompositions(true);
@@ -66,9 +72,23 @@ const Composition = () => {
         )
     }
 
+    const actionPuestoEditTemplate = () => {
+        return (<>
+            <Button icon="pi pi-paperclip" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={(e) => esq.current.toggle(e)} />
+        </>
+        )
+    }
+
     const actionManiobraBodyTemplate = () => {
         return (<>
             <Button icon="pi pi-table" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={(e) => man.current.toggle(e)} />
+        </>
+        )
+    }
+
+    const actionManiobraEditTemplate = () => {
+        return (<>
+            <Button icon="pi pi-paperclip" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={(e) => esq.current.toggle(e)} />
         </>
         )
     }
@@ -80,16 +100,24 @@ const Composition = () => {
         )
     }
 
+    const actionEsquemaEditTemplate = () => {
+        return (<>
+            <Button icon="pi pi-paperclip" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={(e) => esq.current.toggle(e)} />
+        </>
+        )
+    }
+
     const actionCompositionBodyTemplate = (rowData) => {
         return (<>
-            <Button icon="pi pi-users" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={() => setVisible(true)} />
+            <Button icon="pi pi-users" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={() => onSubmitPreUpdate(rowData)} />
         </>
         )
     }
 
     const headerCompositions = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
+            <CompositionAdd></CompositionAdd>
+                 <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setCompositionsFilter(e.target.value)} placeholder="Buscar..." />
             </span>
@@ -98,7 +126,8 @@ const Composition = () => {
 
     const headerEsquemas = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
+            <EsquemaAdd></EsquemaAdd>
+             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setEsquemasFilter(e.target.value)} placeholder="Buscar..." />
             </span>
@@ -107,7 +136,8 @@ const Composition = () => {
 
     const headerManiobras = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
+          <ManiobraAdd></ManiobraAdd>
+             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setManiobrasFilter(e.target.value)} placeholder="Buscar..." />
             </span>
@@ -116,6 +146,7 @@ const Composition = () => {
 
     const headerPuestos = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+           <PuestoAdd></PuestoAdd>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setPuestosFilter(e.target.value)} placeholder="Buscar..." />
@@ -123,29 +154,50 @@ const Composition = () => {
         </div>
     );
 
+    const onSubmitPreUpdate = (rowData) => {
+        setCompositionModel(rowData);
+        setVisible(true);
+    }
+
+    const actualizarDatosComposition = (nombre, valor) => { 
+        let _compositionModel = { ...compositionModel };
+        _compositionModel[`${nombre}`] = valor;
+        setCompositionModel(_compositionModel); 
+    }
+
+    const onSubmitUpdate = (e) => {
+        e.preventDefault()
+        let data = { ...compositionModel };
+        dispatch(updateComposition(data));
+        fetchCompositions();
+        // limpiar campos
+        setCompositionModel([]);
+        setVisible(false);
+    }
+
     useEffect(() => {
-        if (activo) {
+        if (activo && perfil === 3) {
             fetchCompositions()
         }
-    }, [setCompositions, activo]);
+    }, [activo, perfil]);
 
     useEffect(() => {
-        if (activo) {
+        if (activo && perfil === 3) {
             fetchEsquemas();
         }
-    }, [setEsquemas, activo]);
+    }, [activo, perfil]);
 
     useEffect(() => {
-        if (activo) {
+        if (activo && perfil === 3) {
             fetchManiobras();
         }
-    }, [setManiobras, activo]);
+    }, [activo, perfil]);
 
     useEffect(() => {
-        if (activo) {
+        if (activo && perfil === 3) {
             fetchPuestos();
         }
-    }, [setPuestos, activo]);
+    }, [activo, perfil]);
 
     return (
         activo && perfil === 3 ? (
@@ -175,7 +227,7 @@ const Composition = () => {
                         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Esquemas"
                         globalFilter={esquemasFilter} emptyMessage="Sin Datos." header={headerEsquemas} responsiveLayout="scroll">
                         <Column field="detalle" header="Esquema" sortable />
-                        <Column headerStyle={{ width: '4rem' }} body={actionEsquemaBodyTemplate}></Column>
+                        <Column headerStyle={{ width: '4rem' }} body={actionEsquemaEditTemplate}></Column>
                     </DataTable>
                 </OverlayPanel>
 
@@ -186,7 +238,7 @@ const Composition = () => {
                         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Esquemas"
                         globalFilter={maniobrasFilter} emptyMessage="Sin Datos." header={headerManiobras} responsiveLayout="scroll">
                         <Column field="detalle" header="Maniobra" sortable />
-                        <Column headerStyle={{ width: '4rem' }} body={actionManiobraBodyTemplate}></Column>
+                        <Column headerStyle={{ width: '4rem' }} body={actionManiobraEditTemplate}></Column>
                     </DataTable>
                 </OverlayPanel>
 
@@ -197,9 +249,24 @@ const Composition = () => {
                         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Puestos"
                         globalFilter={puestosFilter} emptyMessage="Sin Datos." header={headerPuestos} responsiveLayout="scroll">
                         <Column field="detalle" header="Puesto" sortable />
-                        <Column headerStyle={{ width: '4rem' }} body={actionPuestoBodyTemplate}></Column>
+                        <Column field="agrupacionStr" header="Agrupacion" sortable />
+                        <Column headerStyle={{ width: '4rem' }} body={actionPuestoEditTemplate}></Column>
                     </DataTable>
                 </OverlayPanel>
+                {compositionModel ? (<Dialog header="Cantidad de Operarios" className="card p-fluid" visible={visible} style={{ width: '30vw' }} modal onHide={() => setVisible(false)}>
+                    <Fragment>
+                        <form className="field grid" onSubmit={onSubmitUpdate}>
+                            <input hidden readOnly value={compositionModel.id} />
+                            <div className="formgroup-inline">
+                                <div className="field col-12"  >
+                                    <label htmlFor="cantidad" className="p-sr-only">Cantidad</label>
+                                    <InputText type="number" placeholder="Cantidad" value={compositionModel.cantidad} onChange={(e) => actualizarDatosComposition("cantidad", e.target.value)} />
+                                </div>
+                                <Button label="Actualizar"></Button>
+                            </div>
+                        </form>
+                    </Fragment>
+                </Dialog>) : <></>}
             </div>
         ) : (<div className="card">
             <h4>Requiere Autenticación</h4>

@@ -16,6 +16,7 @@ const EmpleadoAdd = () => {
     const dispatch = useDispatch()
 
     const onSubmit = (data) => {
+        
         setempleadomodel([
             ...empleadomodel,
             data

@@ -3,7 +3,7 @@ import request from '../context/interceptor';
 export class UserService {
 
     async getAll() {
-        const res = await request.get('Users'); 
+        const res = await request.get('Users');  
         return res.data;
     }
 
