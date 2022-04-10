@@ -5,6 +5,7 @@ import { confirmDialog } from 'primereact/confirmdialog';
 import { DataTable } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
 import { Skeleton } from 'primereact/skeleton';
+import { Toast } from 'primereact/toast';
 import { default as React, useEffect, useRef, useState } from 'react';
 import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
@@ -118,7 +119,7 @@ const Pagos = () => {
         if (activo === true && perfil > 1) {
             fetchPagos();
         }
-    }, [activo,perfil, setPagos]);
+    }, [activo, perfil, setPagos]);
 
     return (
         activo && perfil > 1 ? (
@@ -141,7 +142,9 @@ const Pagos = () => {
                         <Column field="total" header="Total" sortable />
                     </DataTable>
                 </div>
+                <Toast ref={toast} />
             </div>
+
         ) : (<div className="card">
             <h4>Requiere Autenticación</h4>
             <div className="border-round border-1 surface-border p-4">
