@@ -6,7 +6,7 @@ import { InputText } from 'primereact/inputtext';
 import { Skeleton } from 'primereact/skeleton';
 import { Toast } from 'primereact/toast';
 import { default as React, useEffect, useRef, useState } from 'react';
-import { Moment } from 'react-moment';
+import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
 import { autorizarEmbargo, eliminarEmbargo } from '../redux/empleadosducks';
 import { messageService } from '../redux/messagesducks';
@@ -47,11 +47,7 @@ const Embargos = () => {
                 <InputText type="search" onInput={(e) => setEmbargosFilter(e.target.value)} placeholder="Buscar..." />
             </span>
         </div>
-    );
-
-    const fechaFinTemplate = (rowData) => {
-        return <Moment format='D/MM/yyyy'>{rowData.fin}</Moment>
-    }
+    ); 
 
     const accept = (data) => {
         dispatch(autorizarEmbargo(data)).then(
@@ -64,6 +60,10 @@ const Embargos = () => {
             fetchEmbargos());
         toast.current.show({ severity: 'info', summary: 'Rechazando...', detail: 'En proceso...', life: 3000 });
     };
+    
+    const fechaFinTemplate = (rowData) => {
+        return <Moment format='D/MM/yyyy'>{rowData.fin}</Moment>
+    }
 
     useEffect(() => {
         if (activo) {
@@ -86,7 +86,7 @@ const Embargos = () => {
                         <Column field="monto" header="Monto %" sortable />
                         <Column field="total" header="Total" sortable />
                         <Column field="concepto" header="Concepto" sortable />
-                        <Column field="fin" header="Finaliza" sortable body={fechaFinTemplate} />
+                        <Column field="fin" header="Finaliza" dataType="date" sortable body={fechaFinTemplate} />
                         <Column field="operador" header="Operador" sortable />
                         <Column headerStyle={{ width: '4rem' }} body={actionEmbargoBodyTemplate}></Column>
                     </DataTable>
