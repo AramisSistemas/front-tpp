@@ -162,8 +162,7 @@ export const eliminarUser = (data) => async (dispatch) => {
 }
 
 export const actualizarUsuario = (data) => async (dispatch) => {
-    var options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-    data.endOfLife=  data.endOfLife.toLocaleDateString("es-ES", options)
+    data.endOfLife = data.endOfLife.toDateString();
     var form = new FormData();
     form.append('Id', data.id)
     form.append('FirstName', data.firstName)
@@ -183,7 +182,7 @@ export const actualizarUsuario = (data) => async (dispatch) => {
             })
             dispatch(messageService(true, 'Usuario Actualizado ', response.status));
         })
-        .catch(function (error) { 
+        .catch(function (error) {
             dispatch(messageService(false, error.response.data.message, error.response.status));
             if (error.response.status === 401) {
                 dispatch(logout);

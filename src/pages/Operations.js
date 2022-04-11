@@ -280,9 +280,8 @@ const Operations = () => {
     }
 
     const onSubmitManiobra = (e) => {
-        var options = { year: 'numeric', month: 'numeric', day: 'numeric' };
         e.preventDefault()
-        dispatch(ingresarManiobra(maniobraOperacion, turnomaniobra, fechamaniobra.toLocaleDateString("es-ES", options), datosOperacion.id));
+        dispatch(ingresarManiobra(maniobraOperacion, turnomaniobra, fechamaniobra.toDateString(), datosOperacion.id));
         e.target.reset();
         setDisplayIngresaManiobra(false);
         actualizarTablas();

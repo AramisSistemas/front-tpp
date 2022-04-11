@@ -1,4 +1,3 @@
-import { now } from 'moment';
 import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Column } from 'primereact/column';
@@ -55,6 +54,7 @@ const Empleados = () => {
     }
 
     const onSubmitPreEmbargo = (rowData) => {
+        var date = new Date();
         var _embargomodel = {
             id: rowData.id,
             cuil: rowData.cuil,
@@ -62,7 +62,7 @@ const Empleados = () => {
             anticipo: false,
             monto: 0,
             total: 0,
-            fin: now,
+            fin: date,
             permanente: false,
             concepto: ''
         }
@@ -71,9 +71,8 @@ const Empleados = () => {
     }
 
     const actualizarDatosEmpleado = (nombre, valor) => {
-        if (nombre === 'ingreso' || nombre === 'nacimiento') {
-            var options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-            valor = valor.toLocaleDateString("es-ES", options)
+        if (nombre === 'ingreso' || nombre === 'nacimiento') { 
+            valor = valor.toDateString();
         }
         let _empleadomodel = { ...empleadomodel };
         _empleadomodel[`${nombre}`] = valor;
@@ -82,8 +81,7 @@ const Empleados = () => {
 
     const actualizarDatosEmbargo = (nombre, valor) => {
         if (nombre === 'fin') {
-            var options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-            valor = valor.toLocaleDateString("es-ES", options)
+            valor = valor.toDateString();
         }
         if (nombre === 'monto' && valor > 50) {
             toast.current.show({ severity: 'warn', summary: 'Verifique', detail: 'No puede descontarse mas del 50%', life: 3000 });
