@@ -163,7 +163,8 @@ export const eliminarUser = (data) => async (dispatch) => {
 
 export const actualizarUsuario = (data) => async (dispatch) => {
     var options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-    data.endOfLife=  data.endOfLife.toLocaleDateString("es-ES", options)
+     //  data.endOfLife=  data.endOfLife.toLocaleDateString("es-ES", options)
+  data.endOfLife=data.endOfLife.toDateString();
     var form = new FormData();
     form.append('Id', data.id)
     form.append('FirstName', data.firstName)
