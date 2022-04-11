@@ -13,7 +13,7 @@ const EsquemaAdd = () => {
 
     const onSubmit = (e) => {
         e.preventDefault();
-        let data = { ...model }
+        let data = { ...model };
         dispatch(AddEsquemas(data));
         setModel([]);
         setDisplay(false);

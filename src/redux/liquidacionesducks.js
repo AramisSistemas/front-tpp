@@ -47,14 +47,14 @@ export const liquidacionesAdd = (liquidaciones) => async (dispatch) => {
         });
 }
 
-export const liquidacionesPay = (liquidaciones, pagos) => async (dispatch) => {
+export const liquidacionesPay = (liquidaciones, pagos) =>  (dispatch) => {
     dispatch({
         type: LOADING
     })
     const options = {
         headers: { "content-type": "application/json" }
     }
-    await request.post('Operations/LiquidacionesPay', liquidaciones, options)
+     request.post('Operations/LiquidacionesPay', liquidaciones, options)
         .then(function (response) {
             dispatch({
                 type: LIQUIDACIONES_OK,

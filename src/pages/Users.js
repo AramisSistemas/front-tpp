@@ -82,8 +82,8 @@ const Users = () => {
         )
     }
 
-    useEffect(() => { 
-        if (activo === true && perfil === 3) { 
+    useEffect(() => {
+        if (activo === true && perfil === 3) {
             fetchUsers();
         }
     }, [activo, perfil]);

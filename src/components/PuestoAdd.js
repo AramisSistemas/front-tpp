@@ -3,7 +3,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import React, { Fragment, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { AddManiobras } from '../redux/compositionsducks';
+import { AddManiobras, AddPuestos } from '../redux/compositionsducks';
 import { CompositionService } from '../service/CompositionService';  
 import { messageService } from '../redux/messagesducks';
 import { Dropdown } from 'primereact/dropdown';
@@ -25,7 +25,7 @@ const PuestoAdd = () => {
     const onSubmit = (e) => {
         e.preventDefault();
         let data = { ...model }
-        dispatch(AddManiobras(data));
+        dispatch(AddPuestos(data));
         setModel([]);
         setDisplay(false);
     }
@@ -59,7 +59,7 @@ const PuestoAdd = () => {
                         <div className="field col-12">
                             <h5>Agrupacion</h5>
                             <Dropdown name="agrupacion" onChange={(e) => actualizarModel("agrupacion", e.value)} value={model.agrupacion} options={agrupaciones} optionValue="id" optionLabel="detalle" placeholder="Agrupacion"
-                                filter showClear filterBy="detalle" required  editable />
+                                filter showClear filterBy="detalle" required />
                         </div>
                         <Button label="Registro"></Button>
                     </div>

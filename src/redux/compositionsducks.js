@@ -58,11 +58,11 @@ export const updateComposition = (data) => async (dispatch) => {
 
 export const addComposition = (data) => async (dispatch) => {
     var form = new FormData();
-    form.append('Id',0)
+    form.append('Id', 0)
     form.append('Maniobra', data.maniobra)
     form.append('ManiobraStr', data.maniobra)
     form.append('Esquema', data.esquema)
-    form.append('EsquemaStr',data.esquema)
+    form.append('EsquemaStr', data.esquema)
     form.append('Puesto', data.puesto)
     form.append('PuestoStr', data.puesto)
     form.append('Cantidad', data.cantidad)
@@ -86,8 +86,8 @@ export const addComposition = (data) => async (dispatch) => {
 
 export const AddEsquemas = (data) => async (dispatch) => {
     var form = new FormData();
-    form.append('Id',0)
-    form.append('Detalle', data.detalle) 
+    form.append('Id', 0)
+    form.append('Detalle', data.detalle)
     dispatch({
         type: LOADING
     })
@@ -106,10 +106,33 @@ export const AddEsquemas = (data) => async (dispatch) => {
         });
 }
 
+export const UpdateEsquema = (data) => async (dispatch) => {
+    var form = new FormData();
+    form.append('Id',data.id)
+    form.append('Detalle', data.detalle)
+    dispatch({
+        type: LOADING
+    })
+    await request.patch('Composicions/UpdateEsquemas', form)
+        .then(function (response) {
+            dispatch({
+                type: COMPOSITION_EXITO
+            });
+            dispatch(messageService(true, response.data));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: COMPOSITION_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
+
+
 export const AddManiobras = (data) => async (dispatch) => {
     var form = new FormData();
-    form.append('Id',0)
-    form.append('Detalle', data.detalle) 
+    form.append('Id', 0)
+    form.append('Detalle', data.detalle)
     dispatch({
         type: LOADING
     })
@@ -128,14 +151,58 @@ export const AddManiobras = (data) => async (dispatch) => {
         });
 }
 
+export const UpdateManiobra = (data) => async (dispatch) => {
+    var form = new FormData();
+    form.append('Id',data.id)
+    form.append('Detalle', data.detalle)
+    dispatch({
+        type: LOADING
+    })
+    await request.patch('Composicions/UpdateManiobras', form)
+        .then(function (response) {
+            dispatch({
+                type: COMPOSITION_EXITO
+            });
+            dispatch(messageService(true, response.data));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: COMPOSITION_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
+
 export const AddPuestos = (data) => async (dispatch) => {
     var form = new FormData();
-    form.append('Id',0)
-    form.append('Detalle', data.detalle) 
+    form.append('Id', 0)
+    form.append('Detalle', data.detalle)
     dispatch({
         type: LOADING
     })
     await request.post('Composicions/AddPuestos', form)
+        .then(function (response) {
+            dispatch({
+                type: COMPOSITION_EXITO
+            });
+            dispatch(messageService(true, response.data));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: COMPOSITION_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
+
+export const UpdatePuesto = (data) => async (dispatch) => {
+    var form = new FormData();
+    form.append('Id',data.id)
+    form.append('Detalle', data.detalle)
+    dispatch({
+        type: LOADING
+    })
+    await request.patch('Composicions/UpdatePuestos', form)
         .then(function (response) {
             dispatch({
                 type: COMPOSITION_EXITO

@@ -28,3 +28,6 @@ yarn-error.log*
 
 layout.css
 pages.css
+
+# inteceptor
+src/context/interceptor.js

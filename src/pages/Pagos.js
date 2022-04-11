@@ -31,9 +31,9 @@ const Pagos = () => {
     const [loadingPagos, setLoadingPagos] = useState(true);
     const [pagosFilter, setPagosFilter] = useState(null);
 
-    const fetchPagos = async () => {
+    const fetchPagos = () => {
         setLoadingPagos(true);
-        await operationService.GetLiquidacionPayPendientes().then(data => {
+        operationService.GetLiquidacionPayPendientes().then(data => {
             setPagos(data.liquidacionesPagos);
             setLiquidaciones(data.liquidacionModel);
             setLoadingPagos(false)
@@ -102,8 +102,10 @@ const Pagos = () => {
                 )
             );
             var json = JSON.stringify(lm);
-            dispatch(liquidacionesPay(json, selectedPagos)).then(
-                fetchPagos())
+            dispatch(liquidacionesPay(json, selectedPagos));
+            setSelectedPagos([]);
+            fetchPagos();
+
         } catch (error) {
             messageService(true, error.message, 500)
         }
@@ -119,7 +121,7 @@ const Pagos = () => {
         if (activo === true && perfil > 1) {
             fetchPagos();
         }
-    }, [activo, perfil, setPagos]);
+    }, [activo, perfil]);
 
     return (
         activo && perfil > 1 ? (

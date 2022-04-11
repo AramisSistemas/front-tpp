@@ -12,7 +12,7 @@ const CompositionAdd = () => {
     const [model, setModel] = useState([]);
     const [display, setDisplay] = useState(false);
 
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
     const compositionService = new CompositionService();
 
     const [esquemas, setEsquemas] = useState([]);
