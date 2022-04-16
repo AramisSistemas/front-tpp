@@ -1,7 +1,5 @@
 import request from '../context/interceptor';
-import { messageService } from './messagesducks';
-import { logout } from './usersducks';
-// data inicial
+import { messageService } from './messagesducks'; 
 
 const dataInicial = {
     loading: false
@@ -89,10 +87,7 @@ export const actualizarEmpleado = (data) => async (dispatch) => {
             dispatch({
                 type: EMPLEADO_ERROR
             })
-            dispatch(messageService(false, error.response.data.message, error.response.status));
-            if (error.response.status === 401) {
-                dispatch(logout);
-            }
+            dispatch(messageService(false, error.response.data.message, error.response.status)); 
         });
 }
 
@@ -111,10 +106,7 @@ export const autorizarEmbargo = (data) => async (dispatch) => {
             dispatch({
                 type: EMPLEADO_ERROR
             })
-            dispatch(messageService(false, error.response.data.message, error.response.status));
-            if (error.response.status === 401) {
-                dispatch(logout);
-            }
+            dispatch(messageService(false, error.response.data.message, error.response.status)); 
         });
 }
 
@@ -131,10 +123,7 @@ export const eliminarEmpleado = (data) => async (dispatch) => {
             dispatch({
                 type: EMPLEADO_ERROR
             })
-            dispatch(messageService(false, error.response.data.message, error.response.status));
-            if (error.response.status === 401) {
-                dispatch(logout);
-            }
+            dispatch(messageService(false, error.response.data.message, error.response.status)); 
         });
 }
 
@@ -151,10 +140,7 @@ export const eliminarEmbargo = (data) => async (dispatch) => {
             dispatch({
                 type: EMPLEADO_ERROR
             })
-            dispatch(messageService(false, error.response.data.message, error.response.status));
-            if (error.response.status === 401) {
-                dispatch(logout);
-            }
+            dispatch(messageService(false, error.response.data.message, error.response.status)); 
         });
 }
 

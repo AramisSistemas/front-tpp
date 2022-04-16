@@ -17,6 +17,7 @@ import Empleados from './pages/Empleados';
 import Embargos from './pages/Embargos';
 import Pagos from './pages/Pagos';
 import Composition from './pages/Composition';
+import Agrupamientos from './pages/Agrupamientos';
 //componentes del DEmo
 
 import ChartDemo from './components/ChartDemo';
@@ -279,7 +280,8 @@ const App = () => {
                     <Route path="/empleados" component={Empleados} />
                     <Route path="/embargos" component={Embargos} />
                     <Route path="/pagos" component={Pagos} />
-                    <Route path="/composicionManiobra" component={Composition} />                    
+                    <Route path="/composicionManiobra" component={Composition} />   
+                    <Route path="/composicionJornal" component={Agrupamientos} />                
                 </div>
 
                 <AppFooter layoutColorMode={layoutColorMode} />

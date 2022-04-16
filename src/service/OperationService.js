@@ -40,5 +40,5 @@ export class OperationService {
     async getManiobrasAll() {
         const res = await request.get('Operations/GetManiobras');
         return res.data;
-    }
+    } 
 }

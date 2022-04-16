@@ -108,7 +108,7 @@ export const AddEsquemas = (data) => async (dispatch) => {
 
 export const UpdateEsquema = (data) => async (dispatch) => {
     var form = new FormData();
-    form.append('Id',data.id)
+    form.append('Id', data.id)
     form.append('Detalle', data.detalle)
     dispatch({
         type: LOADING
@@ -127,7 +127,6 @@ export const UpdateEsquema = (data) => async (dispatch) => {
             dispatch(messageService(false, error.response.data.message, error.response.status));
         });
 }
-
 
 export const AddManiobras = (data) => async (dispatch) => {
     var form = new FormData();
@@ -153,7 +152,7 @@ export const AddManiobras = (data) => async (dispatch) => {
 
 export const UpdateManiobra = (data) => async (dispatch) => {
     var form = new FormData();
-    form.append('Id',data.id)
+    form.append('Id', data.id)
     form.append('Detalle', data.detalle)
     dispatch({
         type: LOADING
@@ -197,7 +196,7 @@ export const AddPuestos = (data) => async (dispatch) => {
 
 export const UpdatePuesto = (data) => async (dispatch) => {
     var form = new FormData();
-    form.append('Id',data.id)
+    form.append('Id', data.id)
     form.append('Detalle', data.detalle)
     dispatch({
         type: LOADING
@@ -214,5 +213,137 @@ export const UpdatePuesto = (data) => async (dispatch) => {
                 type: COMPOSITION_ERROR
             })
             dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
+
+export const AddAgrupamientos = (data) => async (dispatch) => {
+    var form = new FormData();
+    form.append('Id', 0)
+    form.append('Detalle', data.detalle)
+    dispatch({
+        type: LOADING
+    })
+    await request.post('Composicions/AddAgrupaciones', form)
+        .then(function (response) {
+            dispatch({
+                type: COMPOSITION_EXITO
+            });
+            dispatch(messageService(true, response.data));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: COMPOSITION_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
+
+export const UpdateAgrupamiento = (data) => async (dispatch) => {
+    var form = new FormData();
+    form.append('Id', data.id)
+    form.append('Detalle', data.detalle)
+    dispatch({
+        type: LOADING
+    })
+    await request.patch('Composicions/UpdateAgrupaciones', form)
+        .then(function (response) {
+            dispatch({
+                type: COMPOSITION_EXITO
+            });
+            dispatch(messageService(true, response.data));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: COMPOSITION_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
+
+export const DeleteAgrupamiento = (data) => async (dispatch) => {
+
+    await request.delete('Composicions/DeleteAgrupaciones/?id=' + data)
+        .then(function (response) {
+            dispatch({
+                type: COMPOSITION_EXITO
+            })
+            dispatch(messageService(true, 'Correcto', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: COMPOSITION_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
+
+export const CompositionJornalesInsert = (composiciones) => async (dispatch) => {
+    dispatch({
+        type: LOADING
+    })
+    const options = {
+        headers: { "content-type": "application/json" }
+    }
+    await request.put('Composicions/InsertCompoJornales', composiciones, options)
+        .then(function (response) {
+            dispatch({
+                type: COMPOSITION_EXITO
+            })
+            dispatch(messageService(true, 'Composiciones agregadas ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: COMPOSITION_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
+
+export const CompositionJornalesUpdate = (data) => async (dispatch) => {
+    var form = new FormData();
+    form.append('Id', data.id)
+    form.append('Agrupacion', data.agrupacion)
+    form.append('Codigo', data.codigo)
+    form.append('Concepto', data.concepto)
+    form.append('Monto', data.monto)
+    form.append('Fijo', data.fijo)
+    form.append('Haber', data.haber)
+    form.append('Remunerativo', data.remunerativo)
+    form.append('Sbasico', data.sbasico)
+    form.append('Sbruto', data.sbruto)
+    form.append('Sremun', data.sremun)
+    form.append('Obligatorio', data.obligatorio) 
+    dispatch({
+        type: LOADING
+    })
+    await request.patch('Composicions/UpdateCompoJornales', form)
+        .then(function (response) {
+            dispatch({
+                type: COMPOSITION_EXITO
+            });
+            dispatch(messageService(true, response.data));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: COMPOSITION_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
+
+export const CompositionJornalesDelete = (data) => async (dispatch) => {
+console.log(data)
+    await request.delete('Composicions/DeleteCompoJornales/?id=' + data)
+        .then(function (response) {
+            dispatch({
+                type: COMPOSITION_EXITO
+            })
+            dispatch(messageService(true, 'Composicion Eliminada ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: COMPOSITION_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status)); 
         });
 }

@@ -11,7 +11,7 @@ import CompositionAdd from '../components/CompositionAdd';
 import EsquemaAdd from '../components/EsquemaAdd';
 import ManiobraAdd from '../components/ManiobraAdd';
 import PuestoAdd from '../components/PuestoAdd';
-import { updateComposition, UpdateEsquema,UpdateManiobra,UpdatePuesto } from '../redux/compositionsducks';
+import { updateComposition, UpdateEsquema, UpdateManiobra, UpdatePuesto } from '../redux/compositionsducks';
 import { messageService } from '../redux/messagesducks';
 import { CompositionService } from '../service/CompositionService';
 const Composition = () => {
@@ -36,7 +36,7 @@ const Composition = () => {
     const [maniobraVisible, setManiobraVisible] = useState(false);
     const [puestos, setPuestos] = useState([]);
     const [puesto, setPuesto] = useState(null);
-    const [puestoVisible, setPuestoVisible] = useState(false); 
+    const [puestoVisible, setPuestoVisible] = useState(false);
     const [loadingCompositions, setLoadingCompositions] = useState(true);
     const [compositionsFilter, setCompositionsFilter] = useState(null);
     const [esquemasFilter, setEsquemasFilter] = useState(null);
@@ -70,7 +70,7 @@ const Composition = () => {
             setPuestos(data);
         }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
     }
- 
+
     const actionPuestoBodyTemplate = () => {
         return (<>
             <Button icon="pi pi-sitemap" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={(e) => pues.current.toggle(e)} />
@@ -78,7 +78,7 @@ const Composition = () => {
         )
     }
 
-    const editPuesto =(data)=>{ 
+    const editPuesto = (data) => {
         setPuesto(data);
         setPuestoVisible(true);
     }
@@ -92,7 +92,7 @@ const Composition = () => {
         setPuestoVisible(false);
     }
 
-    const actualizarDatosPuesto = (nombre, valor) => { 
+    const actualizarDatosPuesto = (nombre, valor) => {
         let _puesto = { ...puesto };
         _puesto[`${nombre}`] = valor;
         setPuesto(_puesto);
@@ -112,7 +112,7 @@ const Composition = () => {
         )
     }
 
-    const editManiobra =(data)=>{
+    const editManiobra = (data) => {
         setManiobra(data);
         setManiobraVisible(true);
     }
@@ -126,7 +126,7 @@ const Composition = () => {
         setManiobraVisible(false);
     }
 
-    const actualizarDatosManiobra = (nombre, valor) => { 
+    const actualizarDatosManiobra = (nombre, valor) => {
         let _maniobra = { ...maniobra };
         _maniobra[`${nombre}`] = valor;
         setManiobra(_maniobra);
@@ -134,19 +134,19 @@ const Composition = () => {
 
     const actionManiobraEditTemplate = (rowData) => {
         return (<>
-            <Button icon="pi pi-paperclip" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={()=> editManiobra(rowData) } />
+            <Button icon="pi pi-paperclip" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={() => editManiobra(rowData)} />
         </>
         )
     }
 
     const actionEsquemaBodyTemplate = (rowData) => {
         return (<>
-            <Button icon="pi pi-cog" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2"onClick={(e) => esq.current.toggle(e)} />
+            <Button icon="pi pi-cog" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={(e) => esq.current.toggle(e)} />
         </>
         )
-    } 
+    }
 
-    const editEsquema =(data)=>{
+    const editEsquema = (data) => {
         setEsquema(data);
         setEsquemaVisible(true);
     }
@@ -160,7 +160,7 @@ const Composition = () => {
         setEsquemaVisible(false);
     }
 
-    const actualizarDatosEsquema = (nombre, valor) => { 
+    const actualizarDatosEsquema = (nombre, valor) => {
         let _esquema = { ...esquema };
         _esquema[`${nombre}`] = valor;
         setEsquema(_esquema);
@@ -168,7 +168,7 @@ const Composition = () => {
 
     const actionEsquemaEditTemplate = (rowData) => {
         return (<>
-            <Button icon="pi pi-paperclip" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={()=> editEsquema(rowData) }/>
+            <Button icon="pi pi-paperclip" id="button" className="p-button-rounded p-button-info p-button-text mr-2 mb-2" onClick={() => editEsquema(rowData)} />
         </>
         )
     }
@@ -264,7 +264,7 @@ const Composition = () => {
 
     useEffect(() => {
         if (activo && perfil === 3) {
-            fetchPuestos(); 
+            fetchPuestos();
         }
     }, [activo, perfil]);
 
@@ -290,12 +290,12 @@ const Composition = () => {
                     {esquema ? (<Dialog header="Actualizar Esquema" className="card p-fluid" visible={esquemaVisible} style={{ width: '30vw' }} position="top" modal onHide={() => setEsquemaVisible(false)}>
                         <Fragment>
                             <form className="field grid" onSubmit={onSubmitEsquema}>
-                                <input hidden readOnly value={esquema.id} /> 
+                                <input hidden readOnly value={esquema.id} />
                                 <div className="formgroup-inline">
                                     <h5>Esquema</h5>
                                     <div className="field col-12"  >
                                         <label htmlFor="detalle" className="p-sr-only">Esquema</label>
-                                        <InputText type="text" value={esquema.detalle} placeholder="Esquema" onChange={(e) => actualizarDatosEsquema('detalle',e.target.value)} />
+                                        <InputText type="text" value={esquema.detalle} placeholder="Esquema" onChange={(e) => actualizarDatosEsquema('detalle', e.target.value)} />
                                     </div>
                                     <Button label="Actualizar"></Button>
                                 </div>
@@ -305,12 +305,12 @@ const Composition = () => {
                     {maniobra ? (<Dialog header="Actualizar Maniobra" className="card p-fluid" visible={maniobraVisible} style={{ width: '30vw' }} position="top" modal onHide={() => setManiobraVisible(false)}>
                         <Fragment>
                             <form className="field grid" onSubmit={onSubmitManiobra}>
-                                <input hidden readOnly value={maniobra.id} /> 
+                                <input hidden readOnly value={maniobra.id} />
                                 <div className="formgroup-inline">
                                     <h5>Maniobra</h5>
                                     <div className="field col-12"  >
                                         <label htmlFor="detalle" className="p-sr-only">Maniobra</label>
-                                        <InputText type="text" value={maniobra.detalle} placeholder="Maniobra" onChange={(e) => actualizarDatosManiobra('detalle',e.target.value)} />
+                                        <InputText type="text" value={maniobra.detalle} placeholder="Maniobra" onChange={(e) => actualizarDatosManiobra('detalle', e.target.value)} />
                                     </div>
                                     <Button label="Actualizar"></Button>
                                 </div>
@@ -320,12 +320,12 @@ const Composition = () => {
                     {puesto ? (<Dialog header="Actualizar Puesto" className="card p-fluid" visible={puestoVisible} style={{ width: '30vw' }} position="top" modal onHide={() => setPuestoVisible(false)}>
                         <Fragment>
                             <form className="field grid" onSubmit={onSubmitPuesto}>
-                                <input hidden readOnly value={puesto.id} /> 
+                                <input hidden readOnly value={puesto.id} />
                                 <div className="formgroup-inline">
                                     <h5>Puesto</h5>
                                     <div className="field col-12"  >
                                         <label htmlFor="detalle" className="p-sr-only">Puesto</label>
-                                        <InputText type="text" value={puesto.detalle} placeholder="Puesto" onChange={(e) => actualizarDatosPuesto('detalle',e.target.value)} />
+                                        <InputText type="text" value={puesto.detalle} placeholder="Puesto" onChange={(e) => actualizarDatosPuesto('detalle', e.target.value)} />
                                     </div>
                                     <Button label="Actualizar"></Button>
                                 </div>

@@ -12,6 +12,16 @@ export class CompositionService {
          return res.data; 
      }
 
+     async getCompoJornales() {
+        const res = await request.get('Composicions/GetCompoJornales'); 
+         return res.data; 
+     }
+
+     async GetConceptosJornales(agrupacion) {
+        const res = await request.get('Composicions/GetConceptosJornales/?agrupacion='+agrupacion); 
+         return res.data; 
+     }
+
      async getManiobras() {
         const res = await request.get('Composicions/GetManiobras'); 
          return res.data; 
