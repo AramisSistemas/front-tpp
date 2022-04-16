@@ -12,7 +12,6 @@ import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
 import { default as React, Fragment, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 import AgrupamientoAdd from '../components/AgrupamientoAdd';
 import { CompositionJornalesDelete, CompositionJornalesInsert, CompositionJornalesUpdate, DeleteAgrupamiento, UpdateAgrupamiento } from '../redux/compositionsducks';
 import { messageService } from '../redux/messagesducks';
@@ -62,7 +61,7 @@ const Agrupamientos = () => {
         {
             label: 'Eliminar',
             icon: 'pi pi-trash',
-            command: () => {setEliminar(false); confirmElimina()}
+            command: () => { confirmElimina() }
         },
         {
             label: 'Informes',
@@ -135,43 +134,7 @@ const Agrupamientos = () => {
         toast.current.show({ severity: 'info', summary: 'Confirma', detail: 'En proceso...', life: 3000 });
     }
 
-    const header = (
-        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <Button icon="pi pi-plus" label="Ver Conceptos" onClick={expandAll} className="mr-2 mb-2" />
-            <Button icon="pi pi-minus" label="Ocultar Conceptos" onClick={collapseAll} className="mb-2" />
-            <AgrupamientoAdd></AgrupamientoAdd>
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setAgrupamientosFilter(e.target.value)} placeholder="Buscar..." />
-            </span>
-        </div>
-    );
-
-    const headerConceptos = (
-        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setConceptosFilter(e.target.value)} placeholder="Buscar..." />
-            </span>
-        </div>
-    );
-
-    const headerConceptosJornales = (
-        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <Button onClick={() => confirmConceptos()} icon="pi pi-arrow-circle-right" label="Insertar Conceptos" className="p-button-help"></Button>
-            <Button onClick={() => altaConceptos()} icon="pi pi-arrow-circle-up" label="Nuevo Concepto" className="p-button-success"></Button>
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setConceptosFilter(e.target.value)} placeholder="Buscar..." />
-            </span>
-        </div>
-    );
-
-    const actionAgrupamientosBodyTemplate = (rowData) => {
-        return <SplitButton icon="pi pi-cog" model={agrupamientosItems} menuStyle={{ width: '12rem' }} className="p-button-success mr-2 mb-2" onShow={() => establecerDatosAgrupamiento(rowData)} ></SplitButton>;
-    }
-
-    const confirmElimina = () => { 
+    const confirmElimina = () => {
         confirmDialog({
             message: 'Eliminaremos la Agrupación ' + model.detalle,
             header: 'Confirma Eliminacion',
@@ -182,24 +145,10 @@ const Agrupamientos = () => {
         });
     };
 
-    const confirmEliminaConcepto = (data) => { 
-        console.log(data);
-        setModelConcepto(data);
-        confirmDialog({
-            message: 'Eliminaremos el Concepto ' + data.concepto,
-            header: 'Confirma Eliminacion',
-            icon: 'pi pi-info-circle',
-            position: 'top',
-            accept,
-            reject
-        });
-    };
-
     const accept = () => {
         try {
-            console.log(eliminar)
-            eliminar ? dispatch(CompositionJornalesDelete(modelConcepto.id)) : dispatch(DeleteAgrupamiento(model.id));
-            actualizarTablas(); 
+            dispatch(DeleteAgrupamiento(model.id));
+            actualizarTablas();
 
         } catch (error) {
             messageService(true, error.message, 500)
@@ -275,6 +224,19 @@ const Agrupamientos = () => {
         toast.current.show({ severity: 'info', summary: 'Confirma', detail: 'En proceso...', life: 3000 });
     }
 
+    const onSubmitEliminarConcepto = (e) => { 
+        try {
+            e.preventDefault();
+            dispatch(CompositionJornalesDelete(modelConcepto.id));
+            fetchConceptosJornales(modelConcepto.agrupacion);
+            actualizarTablas();
+            setEliminar(false);
+        } catch (error) {
+            messageService(true, error.message, 500)
+        }
+        toast.current.show({ severity: 'info', summary: 'Confirma', detail: 'En proceso...', life: 3000 });
+    }
+
     const onSubmitUpdateConcepto = (e) => {
         try {
             e.preventDefault();
@@ -309,18 +271,59 @@ const Agrupamientos = () => {
         setModelConcepto(_data);
     }
 
-    const actionConceptosBodyTemplate = (rowData) => {
-        return (<>
-            <Button icon="pi pi-pencil" className="p-button-rounded p-button-text mr-2 mb-2" onClick={() => editarConcepto(rowData)} />
-            <Button icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-text mr-2 mb-2" onClick={() => {setEliminar(true);confirmEliminaConcepto(rowData)}} />
-        </>
-        )
-    }
-
     const editarConcepto = (data) => {
         setEditar(true);
         setModelConcepto(data);
         setDisplayAltaconceptos(true);
+    }
+
+    const eliminarConcepto = (data) => {
+        setModelConcepto(data);
+        setEliminar(true);
+    }
+
+    const header = (
+        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <Button icon="pi pi-plus" label="Ver Conceptos" onClick={expandAll} className="mr-2 mb-2" />
+            <Button icon="pi pi-minus" label="Ocultar Conceptos" onClick={collapseAll} className="mb-2" />
+            <AgrupamientoAdd></AgrupamientoAdd>
+            <span className="block mt-2 md:mt-0 p-input-icon-left">
+                <i className="pi pi-search" />
+                <InputText type="search" onInput={(e) => setAgrupamientosFilter(e.target.value)} placeholder="Buscar..." />
+            </span>
+        </div>
+    );
+
+    const headerConceptos = (
+        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <span className="block mt-2 md:mt-0 p-input-icon-left">
+                <i className="pi pi-search" />
+                <InputText type="search" onInput={(e) => setConceptosFilter(e.target.value)} placeholder="Buscar..." />
+            </span>
+        </div>
+    );
+
+    const headerConceptosJornales = (
+        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <Button onClick={() => confirmConceptos()} icon="pi pi-arrow-circle-right" label="Insertar Conceptos" className="p-button-help"></Button>
+            <Button onClick={() => altaConceptos()} icon="pi pi-arrow-circle-up" label="Nuevo Concepto" className="p-button-success"></Button>
+            <span className="block mt-2 md:mt-0 p-input-icon-left">
+                <i className="pi pi-search" />
+                <InputText type="search" onInput={(e) => setConceptosFilter(e.target.value)} placeholder="Buscar..." />
+            </span>
+        </div>
+    );
+
+    const actionAgrupamientosBodyTemplate = (rowData) => {
+        return <SplitButton icon="pi pi-cog" model={agrupamientosItems} menuStyle={{ width: '12rem' }} className="p-button-success mr-2 mb-2" onShow={() => establecerDatosAgrupamiento(rowData)} ></SplitButton>;
+    }
+
+    const actionConceptosBodyTemplate = (rowData) => {
+        return (<>
+            <Button icon="pi pi-pencil" className="p-button-rounded p-button-text mr-2 mb-2" onClick={() => editarConcepto(rowData)} />
+            <Button icon="pi pi-trash" className="p-button-rounded p-button-danger p-button-text mr-2 mb-2" onClick={() => eliminarConcepto(rowData)} />
+        </>
+        )
     }
 
     const fijoBodyTemplate = (rowData) => {
@@ -478,11 +481,19 @@ const Agrupamientos = () => {
                                         <h5>Oblig</h5>
                                         <InputSwitch checked={modelConcepto.obligatorio} onChange={(e) => actualizarDatosConcepto("obligatorio", e.value)} />
                                     </div>
-
                                     <Button label={editar ? "Actualizar" : "Alta"}></Button>
                                 </div>
                             </form>
                         </Fragment>
+                    </Dialog> : <></>}
+                    {modelConcepto ? <Dialog header="Eliminar Conceptos" className="card p-fluid" visible={eliminar} style={{ width: '30em' }} position="top" modal onHide={() => setEliminar(false)}>
+                        <div className="formgroup-inline">
+                            <h5>{modelConcepto.concepto}</h5> 
+                            <hr></hr>
+                            <Button label="Si" className="p-button-rounded p-button-danger p-button-text mr-2 mb-2" icon="pi pi-check" onClick={onSubmitEliminarConcepto} />
+                            <Button label="No" className="p-button-rounded p-button-success p-button-text mr-2 mb-2" icon="pi pi-times" onClick={() => setEliminar(false)} />
+                        </div>
+
                     </Dialog> : <></>}
                     <Toast ref={toast} />
                 </div>

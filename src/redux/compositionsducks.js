@@ -331,8 +331,7 @@ export const CompositionJornalesUpdate = (data) => async (dispatch) => {
         });
 }
 
-export const CompositionJornalesDelete = (data) => async (dispatch) => {
-console.log(data)
+export const CompositionJornalesDelete = (data) => async (dispatch) => { 
     await request.delete('Composicions/DeleteCompoJornales/?id=' + data)
         .then(function (response) {
             dispatch({
