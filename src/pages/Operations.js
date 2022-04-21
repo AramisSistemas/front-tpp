@@ -25,6 +25,7 @@ import { actualizarManiobra, cerrarManiobra, confirmarManiobra, eliminarManiobra
 import { logout } from '../redux/usersducks';
 import { EmpleadoService } from '../service/EmpleadoService';
 import { OperationService } from '../service/OperationService';
+import { ToggleButton } from 'primereact/togglebutton';
 
 const Operations = () => {
     const dispatch = useDispatch();
@@ -41,9 +42,10 @@ const Operations = () => {
 
     //llenado de tablas activas
     const [operations, setOperations] = useState([]);
+    const [operationsFilter, setOperationsFilter] = useState(null);
     const [maniobrasActivas, setManiobrasActivas] = useState([]);
     const [loadingOp, setLoadingOp] = useState(true);
-
+    const [activos, setActivos] = useState(true);
     //FORMULARIO PARA MANIOBRAS
     const [displayIngresaManiobra, setDisplayIngresaManiobra] = useState(false);
     const [displayActualizaManiobra, setDisplayActualizaManiobra] = useState(false);
@@ -119,9 +121,9 @@ const Operations = () => {
         await operationService.getComposicionByManiobra(id).then(data => { setComposicion(data) }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
     }
 
-    const fetchOperations = async () => {
+    const fetchOperations = async (activas) => {
         setLoadingOp(true)
-        await operationService.getAll().then(data => { setOperations(data) }).catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
+        await operationService.getAll(activas).then(data => { setOperations(data) }).catch((error) => error.response.status === 401 ? dispatch(logout()) : dispatch(messageService(false, error.response.data.message, error.response.status)));
         setLoadingOp(false);
     }
 
@@ -132,7 +134,7 @@ const Operations = () => {
     const actualizarTablas = () => {
         let _expandedRows = expandedRows;
         collapseAll();
-        fetchOperations();
+        fetchOperations(activos);
         fetchManiobras();
         setExpandedRows(_expandedRows);
     }
@@ -294,9 +296,10 @@ const Operations = () => {
             return;
         }
         dispatch(actualizarManiobra(datosManiobra));
+        actualizarTablas();
         e.target.reset();
         setDisplayActualizaManiobra(false);
-        actualizarTablas();
+       
     }
 
     const onSubmitEliminarManiobra = (id) => {
@@ -442,9 +445,14 @@ const Operations = () => {
     }
 
     const header = (
-        <div className="table-header-container">
+        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
             <Button icon="pi pi-plus" label="Ver Maniobras" onClick={expandAll} className="mr-2 mb-2" />
             <Button icon="pi pi-minus" label="Ocultar Maniobras" onClick={collapseAll} className="mb-2" />
+            <ToggleButton label="Activas" checked={activos} onChange={(e) => setActivos(e.value)} onLabel="Activas" offLabel="Archivadas" onIcon="pi pi-check" offIcon="pi pi-times" style={{width: '10em'}}  />
+            <span className="block mt-2 md:mt-0 p-input-icon-left">
+                <i className="pi pi-search" />
+                <InputText type="search" onInput={(e) => setOperationsFilter(e.target.value)} placeholder="Buscar..." />
+            </span>
         </div>
     );
 
@@ -695,10 +703,10 @@ const Operations = () => {
 
     useEffect(() => {
         if (activo === true) {
-            fetchOperations();
+            fetchOperations(activos);
             fetchManiobras();
         }
-    }, [activo,setOperations,setManiobrasActivas]);
+    }, [activo, setOperations, setManiobrasActivas,activos]);
 
     return (
         activo ? (
@@ -706,7 +714,11 @@ const Operations = () => {
                 <div className="card">
                     <h5>Operaciones</h5>
                     <DataTable value={operations} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)} responsiveLayout="scroll"
-                        rowExpansionTemplate={maniobrasTemplate} dataKey="id" header={header} loading={loadingOp}  >
+                        rowExpansionTemplate={maniobrasTemplate} dataKey="id" header={header} loading={loadingOp}
+                        paginator rows={10} rowsPerPageOptions={[5, 10, 25]} className="datatable-responsive"
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} operaciones"
+                        globalFilter={operationsFilter} emptyMessage="Sin Datos." >
                         <Column expander style={{ width: '3em' }} />
                         <Column field="id" header="Op" sortable />
                         <Column field="inicio" header="Inicio" filterField="inicio" dataType="date" style={{ minWidth: '10rem' }} body={inicioBodyTemplate} />

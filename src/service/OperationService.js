@@ -2,8 +2,8 @@ import request from '../context/interceptor';
 
 export class OperationService {
 
-    async getAll() {
-        const res = await request.get('Operations');
+    async getAll(activas) {
+        const res = await request.get('Operations/?activas='+activas);
         return res.data;
     }
  
