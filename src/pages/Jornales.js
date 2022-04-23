@@ -64,7 +64,6 @@ const Jornales = () => {
         setLoading(false);
       })
       .catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
-
   }
 
   const exportarJornalesPdf = () => {
@@ -397,7 +396,6 @@ const Jornales = () => {
   )
 
   const haberesDetalleTemplate = (rowData) => {
-
     return (
       rowData.haber ? <Badge className="mr-2" value={rowData.monto} severity={'success'} ></Badge> : ''
     )
