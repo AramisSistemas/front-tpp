@@ -19,35 +19,40 @@ import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import EmpleadoAdd from '../components/EmpleadoAdd';
-import { liquidacionDelete, liquidacionesAdd, liquidacionesDelete } from '../redux/liquidacionesducks';
+import { liquidacionDelete, liquidacionesAdd, liquidacionesDelete, sacConfirm, SacReabre } from '../redux/liquidacionesducks';
 import { messageService } from '../redux/messagesducks';
 import { actualizarManiobra, cerrarManiobra, confirmarManiobra, eliminarManiobra, finalizarManiobra, ingresarManiobra, llaveManiobra, pasarDatosManiobra, reabrirManiobra } from '../redux/operationsducks';
 import { logout } from '../redux/usersducks';
 import { EmpleadoService } from '../service/EmpleadoService';
 import { OperationService } from '../service/OperationService';
 import { ToggleButton } from 'primereact/togglebutton';
+import { confirmDialog } from 'primereact/confirmdialog';
+import { Toast } from 'primereact/toast';
+import { liquidacionesPay } from '../redux/liquidacionesducks';
 
 const Sac = () => {
     //CONSTANTES
     const dispatch = useDispatch();
     const dt = useRef(null);
+    const toast = useRef();
     const operationService = new OperationService();
 
     const activo = useSelector(store => store.users.activo);
-
+    const perfil = useSelector(store => store.users.perfil);
     //liquidaciones const
     const [empresa, setEmpresa] = useState([]);
     const [periodos, setPeriodos] = useState([]);
     const [liquidaciones, setLiquidaciones] = useState([]);
     const [liquidacionesDet, setLiquidacionesDet] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [expandedRows, setExpandedRows] = useState(null);
+    const [sacEstado, setSacEstado] = useState(5);
 
     //jornales
     const [jornalesFilter, setJornalesFilter] = useState(null);
     const [jornalesRows, setJornalesRows] = useState(null);
     const [selectedJornales, setSelectedJornales] = useState([]);
     const [jornalActivo, setJornalActivo] = useState(null);
+    const [expandedRows, setExpandedRows] = useState(null);
     const jornalesItems = [
         {
             label: 'Pdf',
@@ -66,9 +71,17 @@ const Sac = () => {
         },
     ];
 
-    //detalleliquidaciones
-    const [detalleLiquidaciones, setDetalleLiquidaciones] = useState([]);
+    const sac = [
+        { det: 'a Confirmar', code: 1 },
+        { det: 'Pendientes de Pago', code: 2 },
+        { det: 'Pagadas', code: 3 },
+        { det: 'Todas', code: 4 }
+    ];
 
+    //confirma
+    const [periodoActivo, setPeriodoActivo] = useState(null);
+    const [confirmar, setConfirmar] = useState(false);
+    const [reabrir, setReabrir] = useState(false);
     //METODOS
     const fetchSac = async (año) => {
         await operationService.GetSacByPeriodo(año).then(data => {
@@ -81,7 +94,72 @@ const Sac = () => {
             .catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
     }
 
+    const onSubmitConfirmarPeriodo = () => {
+        dispatch(sacConfirm(periodoActivo.semestre, periodoActivo.año));
+        fetchSac();
+        setConfirmar(false);
+    }
+
+    const onSubmitReabrirPeriodo = () => {
+        dispatch(SacReabre(periodoActivo.semestre, periodoActivo.año));
+        fetchSac();
+        setReabrir(false);
+    }
+
     //FUNCTIONS 
+
+    const confirmPago = () => {
+        let total = 0;
+        let cantidad = 0;
+        selectedJornales.forEach(x => {
+            total = total + x.neto;
+            cantidad = cantidad + 1;
+        });
+        confirmDialog({
+            message: 'Genera el pago por un TOTAL de $ ' + total,
+            header: 'Confirma Pago',
+            icon: 'pi pi-info-circle',
+            position: 'top',
+            accept,
+            reject
+        });
+    };
+
+    const accept = () => {
+        try {
+            let lm = []
+            selectedJornales.forEach(e =>
+                liquidaciones.filter(liq => liq.idEmpleado === e.idEmpleado).forEach(l =>
+                    lm.push({
+                        liquidacion: l.liquidacion
+                    })
+                )
+            );
+            var json = JSON.stringify(lm);
+            dispatch(liquidacionesPay(json, selectedJornales));
+            setSelectedJornales([]);
+            fetchSac();
+
+        } catch (error) {
+            messageService(true, error.message, 500)
+        }
+        toast.current.show({ severity: 'info', summary: 'Confirma', detail: 'En proceso...', life: 3000 });
+    }
+
+    const reject = () => {
+        toast.current.show({ severity: 'info', summary: 'Anula', detail: 'Anulando...', life: 3000 });
+        setSelectedJornales([]);
+    }
+
+    const confirmaPeriodo = (rowData) => {
+        setPeriodoActivo(rowData);
+        setConfirmar(true);
+    }
+
+    const reabrirPeriodo = (rowData) => {
+        setPeriodoActivo(rowData);
+        setReabrir(true);
+    }
 
     useEffect(() => {
         if (activo === true) {
@@ -93,7 +171,8 @@ const Sac = () => {
 
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-
+            <Dropdown optionLabel="det" optionValue="code" value={sacEstado} options={sac} onChange={(e) => setSacEstado(e.value)} placeholder="Estados..." />
+            <Button className="p-button-info" icon="pi pi-print" label='Imprimir' onClick={() => console.log('imprimir')} />
         </div>
     );
 
@@ -113,19 +192,38 @@ const Sac = () => {
         return <SplitButton icon="pi pi-print" model={jornalesItems} menuStyle={{ width: '12rem' }} onShow={() => setJornalActivo(rowData)} className="p-button-success mr-2 mb-2" ></SplitButton>;
     }
 
+    const actionPeriodoBodyTemplate = (rowData) => {
+        return ( sacEstado === 2 && perfil > 1 ? <Button className="p-button-secondary" icon="pi pi-undo" label= 'ReAbrir'  onClick={() => reabrirPeriodo(rowData)} />
+                : <></>)
+    }
+
+    const action2PeriodoBodyTemplate = (rowData) => {
+        return (sacEstado === 1 && perfil > 1 ? <Button className="p-button-secondary" icon="pi pi-check" label= 'Confirmar'  onClick={() => confirmaPeriodo(rowData)} />
+            : sacEstado === 2 && perfil > 1 ? <Button onClick={() => confirmPago()} icon="pi pi-dollar" label="Pagar" className="p-button-help"/> 
+                : <></>)
+    }
+
     const liquidacionesTemplate = (data) => {
         return (
-            <DataTable value={liquidaciones.filter(l => l.semestre === data.semestre && l.año ===data.año)} dataKey="liquidacion" responsiveLayout="scroll"
+            <DataTable value={sacEstado === 1 ? liquidaciones.filter(l => l.semestre === data.semestre && l.año === data.año && l.confirmada === false)
+                : sacEstado === 2 ? liquidaciones.filter(l => l.semestre === data.semestre && l.año === data.año && l.confirmada === true && l.pagado === false)
+                    : sacEstado === 3 ? liquidaciones.filter(l => l.semestre === data.semestre && l.año === data.año && l.pagado === true)
+                        : liquidaciones.filter(l => l.semestre === data.semestre && l.año === data.año)
+            } dataKey="liquidacion" responsiveLayout="scroll"
                 header={headerJornalesTemplate} rowExpansionTemplate={detallesTemplate}
                 expandedRows={jornalesRows} onRowToggle={(e) => setJornalesRows(e.data)}
                 ref={dt} globalFilter={jornalesFilter}
                 selection={selectedJornales} onSelectionChange={(e) => setSelectedJornales(e.value)}
+                paginator rows={10} rowsPerPageOptions={[5, 10, 25]} className="datatable-responsive"
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} liquidaciones"
+                emptyMessage="Sin Datos."
             >
                 <Column expander style={{ width: '3em' }} />
                 <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
-                <Column field="liquidacion" header="Nro" sortable />
                 <Column field="cuil" header="Cuil" sortable />
                 <Column field="nombre" header="Nombre" sortable />
+                <Column field="cbu" header="Cbu" sortable />
                 <Column field="neto" header="Neto" sortable />
                 <Column headerStyle={{ width: '4rem' }} body={actionJornalesBodyTemplate} ></Column>
             </DataTable>
@@ -159,14 +257,10 @@ const Sac = () => {
                 <Column field="cantidad" header="Un. %" sortable />
                 <Column field="monto" header="Haberes" sortable body={haberesDetalleTemplate} />
                 <Column field="monto" header="Descuentos" sortable body={descuentosDetalleTemplate} />
-                <Column headerStyle={{ width: '4rem' }} ></Column>
             </DataTable>
         )
     }
 
-    const fechaTemplate = (rowData) => {
-        return <Moment format='D/MM/yyyy'>{rowData.fecha}</Moment>
-    }
     return (
         activo ? (
             <div className="col-12">
@@ -174,15 +268,34 @@ const Sac = () => {
                     <h5>Liquidaciones SAC</h5>
                     <DataTable value={periodos} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)} responsiveLayout="scroll"
                         rowExpansionTemplate={liquidacionesTemplate} dataKey="semestre" header={header} loading={loading}
-                        paginator rows={5} rowsPerPageOptions={[5, 10, 25]} className="datatable-responsive"
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} semestres"
-                        emptyMessage="Sin Datos." >
+                    >
                         <Column expander style={{ width: '3em' }} />
                         <Column field="año" header="Año" sortable />
                         <Column field="semestre" header="Semestre" />
+                        <Column headerStyle={{ width: '6rem' }} body={actionPeriodoBodyTemplate}></Column>
+                        <Column headerStyle={{ width: '6rem' }} body={action2PeriodoBodyTemplate}></Column>
                     </DataTable>
                 </div>
+                {periodoActivo ? <Dialog header="Confirmar Período" className="card p-fluid" visible={confirmar} style={{ width: '30em' }} position="top" modal onHide={() => setConfirmar(false)}>
+                    <div className="formgroup-inline">
+                        <h5>Semestre {periodoActivo.semestre} Año  {periodoActivo.año}</h5>
+                        <hr></hr>
+                        <Button label="Si" className="p-button-rounded p-button-danger p-button-text mr-2 mb-2" icon="pi pi-check" onClick={()=>onSubmitConfirmarPeriodo()} />
+                        <Button label="No" className="p-button-rounded p-button-success p-button-text mr-2 mb-2" icon="pi pi-times" onClick={() => setConfirmar(false)} />
+                    </div>
+
+                </Dialog> : <></>}
+                {periodoActivo ? <Dialog header="Confirmar Período" className="card p-fluid" visible={reabrir} style={{ width: '30em' }} position="top" modal onHide={() => setReabrir(false)}>
+                    <div className="formgroup-inline">
+                        <h5>Semestre {periodoActivo.semestre} Año  {periodoActivo.año}</h5>
+                        <hr></hr>
+                        <Button label="Si" className="p-button-rounded p-button-danger p-button-text mr-2 mb-2" icon="pi pi-check" onClick={()=>onSubmitReabrirPeriodo()} />
+                        <Button label="No" className="p-button-rounded p-button-success p-button-text mr-2 mb-2" icon="pi pi-times" onClick={() => setReabrir(false)} />
+                    </div>
+
+                </Dialog> : <></>}
+
+                <Toast ref={toast} />
             </div>
         )
             : (<div className="card">

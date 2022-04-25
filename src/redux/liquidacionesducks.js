@@ -119,3 +119,41 @@ export const liquidacionDelete = (liquidacion) => async (dispatch) => {
             dispatch(messageService(false, error.response.data.message, error.response.status));
         });
 }
+
+export const sacConfirm = (semestre, año) => async (dispatch) => {
+    dispatch({
+        type: LOADING
+    })
+    await request.post('Operations/SacConfirma/?semestre=' + semestre + '&año=' + año)
+        .then(function (response) {
+            dispatch({
+                type: LIQUIDACIONES_OK
+            })
+            dispatch(messageService(true, 'Liquidaciones confirmadas ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: LIQUIDACIONES_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
+
+export const SacReabre = (semestre, año) => async (dispatch) => {
+    dispatch({
+        type: LOADING
+    })
+    await request.post('Operations/SacReabre/?semestre=' + semestre + '&año=' + año)
+        .then(function (response) {
+            dispatch({
+                type: LIQUIDACIONES_OK
+            })
+            dispatch(messageService(true, 'Liquidaciones reabiertas ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: LIQUIDACIONES_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
