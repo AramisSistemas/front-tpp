@@ -377,14 +377,14 @@ const Agrupamientos = () => {
     }
 
     useEffect(() => {
-        if (activo && perfil === 3) {
+        if (activo && perfil> 2) {
             fetchAgrupamientos();
             fetchComposicionJornales();
         }
     }, [activo, perfil]);
 
     return (
-        activo && perfil === 3 ? (
+        activo && perfil > 2 ? (
             <div className="col-12">
                 <div className="card">
                     <h5>Agrupamientos</h5>

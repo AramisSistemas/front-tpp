@@ -82,14 +82,14 @@ const Users = () => {
         )
     }
 
-    useEffect(() => {
-        if (activo === true && perfil === 3) {
+    useEffect(() => { 
+        if (activo && perfil > 2) {
             fetchUsers();
         }
     }, [activo, perfil]);
 
     return (
-        activo && perfil === 3 ? (
+        activo && perfil > 2 ? (
             <div className="col-12">
                 <div className="card">
                     <h5>Usuarios</h5>

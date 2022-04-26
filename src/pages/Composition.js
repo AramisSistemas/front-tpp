@@ -245,31 +245,31 @@ const Composition = () => {
     }
 
     useEffect(() => {
-        if (activo && perfil === 3) {
+        if (activo && perfil > 2) {
             fetchCompositions();
         }
     }, [activo, perfil]);
 
     useEffect(() => {
-        if (activo && perfil === 3) {
+        if (activo && perfil > 2) {
             fetchEsquemas();
         }
     }, [activo, perfil]);
 
     useEffect(() => {
-        if (activo && perfil === 3) {
+        if (activo && perfil > 2) {
             fetchManiobras();
         }
     }, [activo, perfil]);
 
     useEffect(() => {
-        if (activo && perfil === 3) {
+        if (activo && perfil > 2) {
             fetchPuestos();
         }
     }, [activo, perfil]);
 
     return (
-        activo && perfil === 3 ? (
+        activo && perfil> 2 ? (
             <div className="col-12">
                 <div className="card">
                     <h5>Composición Maniobras</h5>

@@ -28,9 +28,9 @@ export default function usersReducer(state = dataInicial, action) {
         case USUARIO_ERROR:
             return { ...dataInicial }
         case USUARIO_EXITO:
-            return { ...state, loading: false, activo: true, perfil: action.payload.Perfil, usuario: action.payload.FirstName }
+            return { ...state, loading: false, activo: true, perfil: action.payload.perfil, usuario: action.payload.FirstName }
         case USUARIO_ACTIVO:
-            return { ...state, loading: false, user: action.payload, activo: true }
+            return { ...state, loading: false, user: action.payload, activo: true, perfil: action.payload.perfil }
         case USUARIO_REGISTRADO:
             return { ...dataInicial }
         case CERRAR_SESION:
@@ -58,10 +58,11 @@ export const login = (usertoauthenticate) => async (dispatch) => {
                 type: USUARIO_EXITO,
                 payload: {
                     FirstName: response.data.firstName,
-                    Perfil: response.data.perfil
+                    perfil: response.data.perfil
                 }
             })
             localStorage.setItem('token', response.data.token);
+            localStorage.setItem('perfil', response.data.perfil);
             dispatch(messageService(true, 'Bienvenido ' + response.data.firstName, response.status));
         })
         .catch(function (error) {
@@ -110,7 +111,7 @@ export const changePassUser = (usertoauthenticate) => async (dispatch) => {
                 type: USUARIO_EXITO,
                 payload: {
                     FirstName: response.data.firstName,
-                    Perfil: response.data.perfil
+                    perfil: response.data.perfil
                 }
             })
             localStorage.setItem('token', response.data.token);
@@ -128,13 +129,18 @@ export const userisactive = () => (dispatch) => {
     if (localStorage.getItem('token')) {
         dispatch({
             type: USUARIO_ACTIVO,
-            payload: localStorage.getItem('token')
+            payload: {
+                token: localStorage.getItem('token'),
+                perfil: localStorage.getItem('perfil')
+            }
+
         })
     }
 }
 
 export const logout = () => (dispatch) => {
     localStorage.removeItem('token');
+    localStorage.removeItem('perfil');
     dispatch({
         type: CERRAR_SESION,
     });

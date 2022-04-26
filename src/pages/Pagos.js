@@ -118,7 +118,7 @@ const Pagos = () => {
     }
 
     useEffect(() => {
-        if (activo === true && perfil > 1) {
+        if (activo && perfil > 1) {
             fetchPagos();
         }
     }, [activo, perfil]);
