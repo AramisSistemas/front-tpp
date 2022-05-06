@@ -30,6 +30,47 @@ export default function operationsReducer(state = dataInicial, action) {
 }
 
 // action
+export const AddOperacion = (data) => async (dispatch) => {
+    var form = new FormData(); 
+    form.append('Inicio', data.inicio)
+    form.append('Destino', data.destino)
+    form.append('Cliente', data.cliente)
+    form.append('Esquema', data.esquema) 
+    dispatch({
+        type: LOADING
+    })
+    await request.put('Operations/AddOperacion', form)
+        .then(function (response) {
+            dispatch({
+                type: MANIOBRA_OK
+            })
+            dispatch(messageService(true, 'Operación Cargada ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: MANIOBRA_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status)); 
+        });
+}
+
+export const DeleteOperacion = (data) => async (dispatch) => {
+
+    await request.delete('Operations/DeleteOperacion/?operacion=' + data)
+        .then(function (response) {
+            dispatch({
+                type: MANIOBRA_OK
+            })
+            dispatch(messageService(true, 'Operacion Eliminada ', response.status));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: MANIOBRA_FAIL
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status)); 
+        });
+}
+
 export const ingresarManiobra = (maniobra, turno, fecha, operacion) => async (dispatch) => {
     var form = new FormData();
     form.append('Fecha', fecha)
@@ -54,10 +95,7 @@ export const ingresarManiobra = (maniobra, turno, fecha, operacion) => async (di
             dispatch({
                 type: MANIOBRA_FAIL
             })
-            dispatch(messageService(false, error.response.data.message, error.response.status));
-            if (error.response.status === 401) {
-                dispatch(logout);
-            }
+            dispatch(messageService(false, error.response.data.message, error.response.status)); 
         });
 }
 
@@ -86,10 +124,7 @@ export const actualizarManiobra = (data) => async (dispatch) => {
             dispatch({
                 type: MANIOBRA_FAIL
             })
-            dispatch(messageService(false, error.response.data.message, error.response.status));
-            if (error.response.status === 401) {
-                dispatch(logout);
-            }
+            dispatch(messageService(false, error.response.data.message, error.response.status)); 
         });
 }
 

@@ -13,19 +13,20 @@ import { ProgressBar } from 'primereact/progressbar';
 import { Sidebar } from 'primereact/sidebar';
 import { Skeleton } from 'primereact/skeleton';
 import { SplitButton } from 'primereact/splitbutton';
+import { ToggleButton } from 'primereact/togglebutton';
 import { classNames } from 'primereact/utils';
 import { default as React, Fragment, useEffect, useRef, useState } from 'react';
 import Moment from 'react-moment';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import EmpleadoAdd from '../components/EmpleadoAdd';
+import OperationAdd from '../components/OperationAdd';
 import { liquidacionDelete, liquidacionesAdd, liquidacionesDelete } from '../redux/liquidacionesducks';
 import { messageService } from '../redux/messagesducks';
-import { actualizarManiobra, cerrarManiobra, confirmarManiobra, eliminarManiobra, finalizarManiobra, ingresarManiobra, llaveManiobra, pasarDatosManiobra, reabrirManiobra } from '../redux/operationsducks';
+import { actualizarManiobra, cerrarManiobra, confirmarManiobra, DeleteOperacion, eliminarManiobra, finalizarManiobra, ingresarManiobra, llaveManiobra, pasarDatosManiobra, reabrirManiobra } from '../redux/operationsducks';
 import { logout } from '../redux/usersducks';
 import { EmpleadoService } from '../service/EmpleadoService';
 import { OperationService } from '../service/OperationService';
-import { ToggleButton } from 'primereact/togglebutton';
 
 const Operations = () => {
     const dispatch = useDispatch();
@@ -56,6 +57,8 @@ const Operations = () => {
     const [fechamaniobra, setFechamaniobra] = useState(null);
     const [maniobraOperacion, setManiobraOperacion] = useState(null);
 
+    const [displayeliminarOperacion, setDisplayeliminarOperacion] = useState(false);
+
     //composicion
     const [composicionManiobra, setComposicion] = useState([]);
     const [liquidaciones, setLiquidaciones] = useState([])
@@ -85,7 +88,8 @@ const Operations = () => {
         },
         {
             label: 'Eliminar',
-            icon: 'pi pi-trash'
+            icon: 'pi pi-trash',
+            command: () => { eliminarOperacion(datosOperacion) }
         },
         {
             label: 'Informes',
@@ -299,11 +303,21 @@ const Operations = () => {
         actualizarTablas();
         e.target.reset();
         setDisplayActualizaManiobra(false);
-       
+
     }
 
     const onSubmitEliminarManiobra = (id) => {
         dispatch(eliminarManiobra(id));
+        actualizarTablas();
+    }
+
+    const eliminarOperacion = () => {
+        setDisplayeliminarOperacion(true);
+    }
+
+    const onSubmitEliminarOperacion = (id) => {
+        dispatch(DeleteOperacion(id));
+        setDisplayeliminarOperacion(false);
         actualizarTablas();
     }
 
@@ -446,9 +460,10 @@ const Operations = () => {
 
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <Button icon="pi pi-plus" label="Ver Maniobras" onClick={expandAll} className="mr-2 mb-2" />
-            <Button icon="pi pi-minus" label="Ocultar Maniobras" onClick={collapseAll} className="mb-2" />
-            <ToggleButton label="Activas" checked={activos} onChange={(e) => setActivos(e.value)} onLabel="Activas" offLabel="Archivadas" onIcon="pi pi-check" offIcon="pi pi-times" style={{width: '10em'}}  />
+            <Button icon="pi pi-plus"   label="Ver Maniobras" onClick={expandAll}   />
+            <Button icon="pi pi-minus"  label="Ocultar Maniobras" onClick={collapseAll}  />
+            <ToggleButton   label="Activas" checked={activos} onChange={(e) => setActivos(e.value)} onLabel="Activas" offLabel="Archivadas" onIcon="pi pi-check" offIcon="pi pi-times" style={{ width: '10em' }} />
+            <OperationAdd></OperationAdd>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setOperationsFilter(e.target.value)} placeholder="Buscar..." />
@@ -701,12 +716,19 @@ const Operations = () => {
         );
     }
 
+    const footerDelOperacion = (
+        <React.Fragment>
+            <Button label="Cancelar" icon="pi pi-times" className="p-button-info p-button-outlined" onClick={() => setDisplayeliminarOperacion(false)} />
+            <Button label="Eliminar" icon="pi pi-trash" className="p-button-danger p-button-outlined" onClick={() => onSubmitEliminarOperacion(datosOperacion.id)} />
+        </React.Fragment>
+    );
+
     useEffect(() => {
         if (activo === true) {
             fetchOperations(activos);
             fetchManiobras();
         }
-    }, [activo, setOperations, setManiobrasActivas,activos]);
+    }, [activo, setOperations, setManiobrasActivas, activos]);
 
     return (
         activo ? (
@@ -752,6 +774,9 @@ const Operations = () => {
                             </div>
                         </form>
                     </Fragment>
+                </Dialog> : <></>}
+                {datosOperacion ? <Dialog className="p-fluid" header="Eliminar Operacion" visible={displayeliminarOperacion} style={{ width: '30vw' }} modal onHide={() => setDisplayeliminarOperacion(false)} footer={footerDelOperacion}>
+                <h5>{datosOperacion.destino}</h5>
                 </Dialog> : <></>}
             </div>
         )
