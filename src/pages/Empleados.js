@@ -156,7 +156,7 @@ const Empleados = () => {
         if (activo) {
             fetchOsociales();
         }
-    }, [setOsociales, , activo]);
+    }, [setOsociales, activo]);
 
     return (
         activo ? (

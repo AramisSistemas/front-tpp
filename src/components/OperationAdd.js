@@ -78,7 +78,6 @@ const OperationAdd = () => {
         let _model = { ...model };
         _model[`${name}`] = val;
         setModel(_model);
-        console.log(_model)
     }
 
     const dialogFooter = (

@@ -269,7 +269,7 @@ const Composition = () => {
     }, [activo, perfil]);
 
     return (
-        activo && perfil> 2 ? (
+        activo && perfil > 2 ? (
             <div className="col-12">
                 <div className="card">
                     <h5>Composición Maniobras</h5>

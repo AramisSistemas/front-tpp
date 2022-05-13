@@ -19,6 +19,7 @@ import Pagos from './pages/Pagos';
 import Composition from './pages/Composition';
 import Agrupamientos from './pages/Agrupamientos';
 import Sac from './pages/Sac';
+import Clientes from './pages/Clientes';
 //componentes del DEmo
 
 import ChartDemo from './components/ChartDemo';
@@ -163,9 +164,10 @@ const App = () => {
         {
             label: 'Administración',
             items: [              
-                { label: 'Pagos', icon: 'pi pi-fw pi-dollar', to: '/pagos' },
+                { label: 'Pago Jornales', icon: 'pi pi-fw pi-dollar', to: '/pagos' },
                 { label: 'Embargos', icon: 'pi pi-fw pi-list', to: '/embargos' },
-                { label: 'Sac', icon: 'pi pi-fw pi-dollar', to: '/sac' }
+                { label: 'Sac', icon: 'pi pi-fw pi-dollar', to: '/sac' },
+                { label: 'Clientes', icon: 'pi pi-fw pi-user', to: '/clientes' }
             ]
         },
         {
@@ -284,7 +286,8 @@ const App = () => {
                     <Route path="/pagos" component={Pagos} />
                     <Route path="/composicionManiobra" component={Composition} />   
                     <Route path="/composicionJornal" component={Agrupamientos} />     
-                    <Route path="/sac" component={Sac} />              
+                    <Route path="/sac" component={Sac} />   
+                    <Route path="/clientes" component={Clientes} />             
                 </div>
 
                 <AppFooter layoutColorMode={layoutColorMode} />

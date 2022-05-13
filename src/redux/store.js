@@ -6,6 +6,7 @@ import liquidacionesReducer from './liquidacionesducks';
 import usersReducer, {userisactive} from './usersducks'  
 import empleadosReducer from './empleadosducks';
 import compositionsReducer from './compositionsducks';
+import clientesReducer from './clientesducks';
 
 const rootReducer = combineReducers({ 
     users: usersReducer ,
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
     liquidaciones:liquidacionesReducer,
     empleados:empleadosReducer,
     compositions:compositionsReducer,
+    clientes:clientesReducer,
 })
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
