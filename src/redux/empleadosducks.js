@@ -22,7 +22,7 @@ export default function empleadosReducer(state = dataInicial, action) {
         case EMPLEADO_EXITO:
             return { ...state, loading: false }
         case EMPLEADO_UPDATE:
-            return { ...state }
+            return { ...state, loading: false}
         default:
             return { ...state }
     }
@@ -35,8 +35,9 @@ export const addEmpleado = (empleado) => async (dispatch) => {
     form.append('Cuil', empleado.cuil)
     form.append('Nombre', empleado.nombre)
     form.append('Cbu', empleado.cbu)
-    form.append('CuilCbu', empleado.cuilcbu)
+    form.append('CuilCbu', empleado.cuilCbu)
     form.append('Sexo', empleado.sexo)
+    form.append('Ciudad', empleado.ciudad)
     dispatch({
         type: LOADING
     })

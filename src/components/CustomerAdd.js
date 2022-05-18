@@ -117,8 +117,8 @@ const CustomerAdd = () => {
                 <div className="field col-9">
                     <br></br>
                     <label htmlFor="nombre">Nombre</label>
-                    <InputText id="nombre" value={model.nombre} onChange={(e) => onInputChange(e, 'nombre')} required autoFocus className={classNames({ 'p-invalid': submitted && !model.detalle })} />
-                    {submitted && !model.detalle && <small className="p-error">Detalle es requerido.</small>}
+                    <InputText id="nombre" value={model.nombre} onChange={(e) => onInputChange(e, 'nombre')} required autoFocus className={classNames({ 'p-invalid': submitted && !model.nombre })} />
+                    {submitted && !model.nombre && <small className="p-error">Nombre es requerido.</small>}
                 </div>
                 <div className="field col-4">
                     <label htmlFor="responsabilidad">Iva</label>

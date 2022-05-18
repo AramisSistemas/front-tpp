@@ -36,6 +36,8 @@ const Operations = () => {
     const empleadoService = new EmpleadoService();
 
     const activo = useSelector(store => store.users.activo);
+    const load = useSelector(store => store.compositions.loading);
+    const loadOp = useSelector(store => store.operations.loading);
 
     //genericas
     const [turnos, setTurnos] = useState({ value: null, label: null });
@@ -434,7 +436,9 @@ const Operations = () => {
         }).then(
             operationService.getManiobrasAll().then(data => {
                 setManiobras(data)
-            }));
+            })).then(
+                empleadoService.getAll(true, dataRow.puerto)
+            );
     }
 
     const establecerDatosManiobra = (rowData) => {
@@ -460,9 +464,9 @@ const Operations = () => {
 
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <Button icon="pi pi-plus"   label="Ver Maniobras" onClick={expandAll}   />
-            <Button icon="pi pi-minus"  label="Ocultar Maniobras" onClick={collapseAll}  />
-            <ToggleButton   label="Activas" checked={activos} onChange={(e) => setActivos(e.value)} onLabel="Activas" offLabel="Archivadas" onIcon="pi pi-check" offIcon="pi pi-times" style={{ width: '10em' }} />
+            <Button icon="pi pi-plus" label="Ver Maniobras" onClick={expandAll} />
+            <Button icon="pi pi-minus" label="Ocultar Maniobras" onClick={collapseAll} />
+            <ToggleButton label="Activas" checked={activos} onChange={(e) => setActivos(e.value)} onLabel="Activas" offLabel="Archivadas" onIcon="pi pi-check" offIcon="pi pi-times" style={{ width: '10em' }} />
             <OperationAdd></OperationAdd>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
@@ -724,11 +728,20 @@ const Operations = () => {
     );
 
     useEffect(() => {
-        if (activo === true) {
-            fetchOperations(activos);
-            fetchManiobras();
+        if (!load) {
+            if (activo === true) {
+                fetchOperations(activos);
+                fetchManiobras();
+            }
         }
-    }, [activo, setOperations, setManiobrasActivas, activos]);
+    }, [activo, setOperations, setManiobrasActivas, activos, load]);
+
+    useEffect(() => {
+        if (activo === true) {
+                fetchOperations(activos);
+                fetchManiobras(); 
+        }
+    }, [activo,  activos, loadOp]);
 
     return (
         activo ? (
@@ -776,7 +789,7 @@ const Operations = () => {
                     </Fragment>
                 </Dialog> : <></>}
                 {datosOperacion ? <Dialog className="p-fluid" header="Eliminar Operacion" visible={displayeliminarOperacion} style={{ width: '30vw' }} modal onHide={() => setDisplayeliminarOperacion(false)} footer={footerDelOperacion}>
-                <h5>{datosOperacion.destino}</h5>
+                    <h5>{datosOperacion.destino}</h5>
                 </Dialog> : <></>}
             </div>
         )

@@ -88,6 +88,7 @@ export const AddEsquemas = (data) => async (dispatch) => {
     var form = new FormData();
     form.append('Id', 0)
     form.append('Detalle', data.detalle)
+    form.append('Puerto', data.puerto)
     dispatch({
         type: LOADING
     })
@@ -107,9 +108,11 @@ export const AddEsquemas = (data) => async (dispatch) => {
 }
 
 export const UpdateEsquema = (data) => async (dispatch) => {
+    console.log(data)
     var form = new FormData();
     form.append('Id', data.id)
     form.append('Detalle', data.detalle)
+    form.append('Puerto', data.puerto)
     dispatch({
         type: LOADING
     })

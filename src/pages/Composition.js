@@ -2,6 +2,7 @@ import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
+import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { Skeleton } from 'primereact/skeleton';
@@ -14,11 +15,14 @@ import PuestoAdd from '../components/PuestoAdd';
 import { updateComposition, UpdateEsquema, UpdateManiobra, UpdatePuesto } from '../redux/compositionsducks';
 import { messageService } from '../redux/messagesducks';
 import { CompositionService } from '../service/CompositionService';
+import { EmpleadoService } from '../service/EmpleadoService';
+
 const Composition = () => {
 
     const dispatch = useDispatch();
 
     const compositionService = new CompositionService();
+    const empleadoService = new EmpleadoService();
 
     const activo = useSelector(store => store.users.activo);
     const perfil = useSelector(store => store.users.perfil);
@@ -29,6 +33,7 @@ const Composition = () => {
 
     const [compositions, setCompositions] = useState([]);
     const [esquemas, setEsquemas] = useState([]);
+    const [ciudades, setCiudades] = useState([]);
     const [esquema, setEsquema] = useState(null);
     const [esquemaVisible, setEsquemaVisible] = useState(false);
     const [maniobras, setManiobras] = useState([]);
@@ -57,6 +62,10 @@ const Composition = () => {
         await compositionService.getEsquemas().then(data => {
             setEsquemas(data);
         }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
+        await empleadoService.getCiudades().then(data => {
+            setCiudades(data);
+        }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
+
     }
 
     const fetchManiobras = async () => {
@@ -297,6 +306,11 @@ const Composition = () => {
                                         <label htmlFor="detalle" className="p-sr-only">Esquema</label>
                                         <InputText type="text" value={esquema.detalle} placeholder="Esquema" onChange={(e) => actualizarDatosEsquema('detalle', e.target.value)} />
                                     </div>
+                                    <div className="field col-12">
+                                        <h5>Puerto</h5>
+                                        <Dropdown name="puerto" onChange={(e) => actualizarDatosEsquema('puerto', e.target.value)} value={esquema.puerto} options={ciudades} optionValue="id" optionLabel="detalle" placeholder="Ciudad"
+                                            filter showClear filterBy="detalle" required autoFocus />
+                                    </div>
                                     <Button label="Actualizar"></Button>
                                 </div>
                             </form>
@@ -340,7 +354,7 @@ const Composition = () => {
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Esquemas"
                         globalFilter={esquemasFilter} emptyMessage="Sin Datos." header={headerEsquemas} responsiveLayout="scroll">
-                        <Column field="detalle" header="Esquema" sortable />
+                        <Column field="detalle" header="Esquema" sortable /> 
                         <Column headerStyle={{ width: '4rem' }} body={actionEsquemaEditTemplate}></Column>
                     </DataTable>
                 </OverlayPanel>

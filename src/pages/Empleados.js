@@ -21,10 +21,12 @@ const Empleados = () => {
 
     const empleadoService = new EmpleadoService();
 
-    const activo = useSelector(store => store.users.activo);
+    const activo = useSelector(store => store.users.activo);    
+    const load = useSelector(store => store.empleados.loading);
     const toast = useRef(null);
 
     const [oSociales, setOsociales] = useState({ id: null, detalle: null });
+    const [ciudades, setciudades] = useState({ id: null, detalle: null });
     const [empleados, setEmpleados] = useState([]);
     const [empleadomodel, setEmpleadomodel] = useState([]);
     const [embargomodel, setEmbargomodel] = useState([]);
@@ -40,6 +42,10 @@ const Empleados = () => {
 
     const fetchOsociales = async () => {
         await empleadoService.getOSociales().then(data => { setOsociales(data) }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
+    }
+
+    const fetchCiudades = async () => {
+        await empleadoService.getCiudades().then(data => { setciudades(data) }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
     }
 
     const onsubmitDelete = (data) => {
@@ -155,8 +161,15 @@ const Empleados = () => {
     useEffect(() => {
         if (activo) {
             fetchOsociales();
+            fetchCiudades();
         }
     }, [setOsociales, activo]);
+
+    useEffect(() => {
+        if (!load) {
+            fetchEmpleados();
+        } 
+    }, [load]);
 
     return (
         activo ? (
@@ -201,7 +214,7 @@ const Empleados = () => {
                                         <label htmlFor="cuilCbu" className="p-sr-only">Cuil-CBU</label>
                                         <InputText type="number" placeholder="Cuil-CBU" value={empleadomodel.cuilCbu} onChange={(e) => actualizarDatosEmpleado("cuilCbu", e.target.value)} />
                                     </div>
-                                    <div className="field col-5"  >
+                                    <div className="field col-8"  >
                                         <h5>Domicilio</h5>
                                         <label htmlFor="domicilio" className="p-sr-only">Domicilio</label>
                                         <InputText type="text" placeholder="Domicilio" value={empleadomodel.domicilio} onChange={(e) => actualizarDatosEmpleado("domicilio", e.target.value)} />
@@ -210,12 +223,7 @@ const Empleados = () => {
                                         <h5>Telefono</h5>
                                         <label htmlFor="telefono" className="p-sr-only">Telefono</label>
                                         <InputText type="text" placeholder="Telefono" value={empleadomodel.telefono} onChange={(e) => actualizarDatosEmpleado("telefono", e.target.value)} />
-                                    </div>
-                                    <div className="field col-3"  >
-                                        <h5>Ciudad</h5>
-                                        <label htmlFor="ciudad" className="p-sr-only">Ciudad</label>
-                                        <InputText type="text" placeholder="Ciudad" value={empleadomodel.ciudad} onChange={(e) => actualizarDatosEmpleado("ciudad", e.target.value)} />
-                                    </div>
+                                    </div>                                  
                                     <div className="field col-2">
                                         <h5>Activo</h5>
                                         <InputSwitch checked={empleadomodel.activo} onChange={(e) => actualizarDatosEmpleado("activo", e.value)} />
@@ -224,11 +232,15 @@ const Empleados = () => {
                                         <h5>Conyuge</h5>
                                         <InputSwitch checked={empleadomodel.conyuge} onChange={(e) => actualizarDatosEmpleado("conyuge", e.value)} />
                                     </div>
-                                    <div className="field col-3"  >
+                                    <div className="field col-2"  >
                                         <h5>Hijos</h5>
                                         <label htmlFor="hijos" className="p-sr-only">Hijos</label>
                                         <InputText type="number" placeholder="Hijos" value={empleadomodel.hijos} onChange={(e) => actualizarDatosEmpleado("hijos", e.target.value)} />
                                     </div>
+                                    <div className="field col-4"  >
+                                        <h5>Ciudad</h5>
+                                         <Dropdown name="ciudad" onChange={(e) => actualizarDatosEmpleado("ciudad", e.value)} value={empleadomodel.ciudad} options={ciudades} optionValue="id" optionLabel="detalle" placeholder="Ciudad"
+                                            filter showClear filterBy="detalle" />     </div>
                                     <div className="field col-12">
                                         <h5>Obra Social</h5>
                                         <Dropdown name="oSocial" onChange={(e) => actualizarDatosEmpleado("oSocial", e.value)} value={empleadomodel.oSocial} options={oSociales} optionValue="id" optionLabel="detalle" placeholder="Obra Social"
