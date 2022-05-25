@@ -297,10 +297,10 @@ const Operations = () => {
 
     const onSubmitActualizaManiobra = (e) => {
         e.preventDefault()
-        if (datosManiobra.produccion > 130) {
+        /* if (datosManiobra.produccion > 130 ) {
             dispatch(messageService(false, 'La producción no puede ser superior a 130 Tn', 400));
             return;
-        }
+        } */
         dispatch(actualizarManiobra(datosManiobra));
         actualizarTablas();
         e.target.reset();

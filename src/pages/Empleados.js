@@ -49,9 +49,7 @@ const Empleados = () => {
     }
 
     const onsubmitDelete = (data) => {
-        dispatch(eliminarEmpleado(data)).then(
-            fetchEmpleados()
-        );
+        dispatch(eliminarEmpleado(data));
     }
 
     const onSubmitPreUpdate = (rowData) => {

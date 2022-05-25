@@ -25,6 +25,7 @@ const Agrupamientos = () => {
 
     const activo = useSelector(store => store.users.activo);
     const perfil = useSelector(store => store.users.perfil);
+    const loadAg = useSelector(store => store.compositions.loading);
     const toast = useRef(null);
     const dt = useRef(null);
 
@@ -382,6 +383,12 @@ const Agrupamientos = () => {
             fetchComposicionJornales();
         }
     }, [activo, perfil]);
+
+    useEffect(() => {
+        if (activo && perfil> 2 && !loadAg) {
+            actualizarTablas();
+        }
+    }, [activo, perfil,loadAg]);
 
     return (
         activo && perfil > 2 ? (

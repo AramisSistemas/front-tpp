@@ -26,6 +26,7 @@ const Composition = () => {
 
     const activo = useSelector(store => store.users.activo);
     const perfil = useSelector(store => store.users.perfil);
+    const loadcompositions = useSelector(store => store.compositions.loading);
 
     const man = useRef(null);
     const esq = useRef(null);
@@ -95,8 +96,7 @@ const Composition = () => {
     const onSubmitPuesto = (e) => {
         e.preventDefault()
         let data = { ...puesto };
-        dispatch(UpdatePuesto(data));
-        fetchPuestos();
+        dispatch(UpdatePuesto(data)); 
         setPuesto(null);
         setPuestoVisible(false);
     }
@@ -129,8 +129,7 @@ const Composition = () => {
     const onSubmitManiobra = (e) => {
         e.preventDefault()
         let data = { ...maniobra };
-        dispatch(UpdateManiobra(data));
-        fetchManiobras();
+        dispatch(UpdateManiobra(data)); 
         setManiobra(null);
         setManiobraVisible(false);
     }
@@ -163,8 +162,7 @@ const Composition = () => {
     const onSubmitEsquema = (e) => {
         e.preventDefault()
         let data = { ...esquema };
-        dispatch(UpdateEsquema(data));
-        fetchEsquemas();
+        dispatch(UpdateEsquema(data)); 
         setEsquema(null);
         setEsquemaVisible(false);
     }
@@ -247,8 +245,7 @@ const Composition = () => {
     const onSubmitUpdate = (e) => {
         e.preventDefault()
         let data = { ...compositionModel };
-        dispatch(updateComposition(data));
-        fetchCompositions();
+        dispatch(updateComposition(data)); 
         setCompositionModel([]);
         setVisible(false);
     }
@@ -276,6 +273,16 @@ const Composition = () => {
             fetchPuestos();
         }
     }, [activo, perfil]);
+
+    useEffect(() => {
+        if (activo && perfil > 2 && !loadcompositions) {
+            fetchPuestos();
+            fetchCompositions();
+            fetchEsquemas();
+            fetchManiobras(); 
+        }
+    }, [activo, perfil]);
+
 
     return (
         activo && perfil > 2 ? (

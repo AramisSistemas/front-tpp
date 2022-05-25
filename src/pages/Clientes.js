@@ -5,6 +5,7 @@ import { Skeleton } from 'primereact/skeleton';
 import { default as React, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import CustomerAdd from '../components/CustomerAdd';
+import DestinoAdd from '../components/DestinoAdd';
 import { messageService } from '../redux/messagesducks';
 import { CustomerService } from '../service/CustomerService';
 
@@ -43,6 +44,7 @@ const Clientes = () => {
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
             <CustomerAdd></CustomerAdd>
+            <DestinoAdd></DestinoAdd>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setFilter(e.target.value)} placeholder="Buscar..." />

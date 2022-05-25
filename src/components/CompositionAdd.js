@@ -3,7 +3,7 @@ import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import React, { Fragment, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
 import { addComposition } from '../redux/compositionsducks';
 import { messageService } from '../redux/messagesducks';
 import { CompositionService } from '../service/CompositionService';
@@ -11,7 +11,7 @@ const CompositionAdd = () => {
 
     const [model, setModel] = useState([]);
     const [display, setDisplay] = useState(false);
-
+    const loadAg = useSelector(store => store.compositions.loading);
     const dispatch = useDispatch();
     const compositionService = new CompositionService();
 
@@ -60,6 +60,12 @@ const CompositionAdd = () => {
         fetchEsquemas();
         fetchManiobras();
     }, []);
+
+    useEffect(() => {
+        fetchPuestos();
+        fetchEsquemas();
+        fetchManiobras();
+    }, [loadAg]);
 
     return <>
         <button className="p-link layout-topbar-button" onClick={() => setDisplay(true)}>

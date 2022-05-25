@@ -115,5 +115,27 @@ export const eliminar = (data) => async (dispatch) => {
         });
 }
  
- 
+export const addDestino = (data) => async (dispatch) => {
+    var form = new FormData();
+    form.append('Id', 0)
+    form.append('Detalle', data.detalle)
+    form.append('Observaciones', data.observaciones) 
+  
+    dispatch({
+        type: LOADING
+    })
+    await request.put('Customers/AddDestinos', form)
+        .then(function (response) {
+            dispatch({
+                type: CLIENTE_EXITO
+            });
+            dispatch(messageService(true, response.data));
+        })
+        .catch(function (error) {
+            dispatch({
+                type: CLIENTE_ERROR
+            })
+            dispatch(messageService(false, error.response.data.message, error.response.status));
+        });
+}
 

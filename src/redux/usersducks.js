@@ -32,13 +32,13 @@ export default function usersReducer(state = dataInicial, action) {
         case USUARIO_ACTIVO:
             return { ...state, loading: false, user: action.payload, activo: true, perfil: action.payload.perfil }
         case USUARIO_REGISTRADO:
-            return { ...dataInicial }
+            return { ...dataInicial , loading: false}
         case CERRAR_SESION:
             return { ...dataInicial }
         case USUARIO_DELETE:
-            return { ...state }
+            return { ...state , loading: false}
         case USUARIO_UPDATE:
-            return { ...state }
+            return { ...state , loading: false}
         default:
             return { ...state }
     }
