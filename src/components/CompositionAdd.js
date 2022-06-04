@@ -3,7 +3,7 @@ import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import React, { Fragment, useEffect, useState } from 'react';
-import { useDispatch,useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addComposition } from '../redux/compositionsducks';
 import { messageService } from '../redux/messagesducks';
 import { CompositionService } from '../service/CompositionService';
@@ -68,10 +68,7 @@ const CompositionAdd = () => {
     }, [loadAg]);
 
     return <>
-        <button className="p-link layout-topbar-button" onClick={() => setDisplay(true)}>
-            <i className="pi pi-plus" />
-            <span>Agregar</span>
-        </button>
+        <Button icon="pi pi-plus" label="Composiciones" onClick={() => setDisplay(true)} className="p-button-help"></Button>
 
         <Dialog header="Composición de Maniobras" className="card p-fluid" visible={display} style={{ width: '40vw' }} modal onHide={() => setDisplay(false)}>
             <Fragment>

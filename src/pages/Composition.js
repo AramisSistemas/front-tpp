@@ -189,7 +189,8 @@ const Composition = () => {
 
     const headerCompositions = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <CompositionAdd></CompositionAdd>
+             <EsquemaAdd></EsquemaAdd>
+            <CompositionAdd></CompositionAdd>          
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setCompositionsFilter(e.target.value)} placeholder="Buscar..." />

@@ -21,9 +21,7 @@ import Agrupamientos from './pages/Agrupamientos';
 import Sac from './pages/Sac';
 import Clientes from './pages/Clientes';
 //componentes del DEmo
-
-import ChartDemo from './components/ChartDemo';
-
+ 
 
 import PrimeReact from 'primereact/api';
 import { Tooltip } from 'primereact/tooltip';
@@ -148,12 +146,7 @@ const App = () => {
     }
 
     const menu = [
-        {
-            label: 'Home',
-            items: [{
-                label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/'
-            }]
-        },
+        
         {
             label: 'Operaciones',
             items: [
@@ -177,65 +170,7 @@ const App = () => {
                 {label: 'Composición Jornales', icon: 'pi pi-fw pi-sort-alpha-down', to: '/composicionJornal'},
                 {label: 'Composición Maniobras', icon: 'pi pi-fw pi-users', to: '/composicionManiobra'},
             ]
-        },
-        {
-            label: 'UI Components', icon: 'pi pi-fw pi-sitemap',
-            items: [
-                { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', to: '/chart' },
-            ]
-        },
-        {
-            label: 'Menu Hierarchy', icon: 'pi pi-fw pi-search',
-            items: [
-                {
-                    label: 'Submenu 1', icon: 'pi pi-fw pi-bookmark',
-                    items: [
-                        {
-                            label: 'Submenu 1.1', icon: 'pi pi-fw pi-bookmark',
-                            items: [
-                                { label: 'Submenu 1.1.1', icon: 'pi pi-fw pi-bookmark' },
-                                { label: 'Submenu 1.1.2', icon: 'pi pi-fw pi-bookmark' },
-                                { label: 'Submenu 1.1.3', icon: 'pi pi-fw pi-bookmark' },
-                            ]
-                        },
-                        {
-                            label: 'Submenu 1.2', icon: 'pi pi-fw pi-bookmark',
-                            items: [
-                                { label: 'Submenu 1.2.1', icon: 'pi pi-fw pi-bookmark' },
-                                { label: 'Submenu 1.2.2', icon: 'pi pi-fw pi-bookmark' }
-                            ]
-                        },
-                    ]
-                },
-                {
-                    label: 'Submenu 2', icon: 'pi pi-fw pi-bookmark',
-                    items: [
-                        {
-                            label: 'Submenu 2.1', icon: 'pi pi-fw pi-bookmark',
-                            items: [
-                                { label: 'Submenu 2.1.1', icon: 'pi pi-fw pi-bookmark' },
-                                { label: 'Submenu 2.1.2', icon: 'pi pi-fw pi-bookmark' },
-                                { label: 'Submenu 2.1.3', icon: 'pi pi-fw pi-bookmark' },
-                            ]
-                        },
-                        {
-                            label: 'Submenu 2.2', icon: 'pi pi-fw pi-bookmark',
-                            items: [
-                                { label: 'Submenu 2.2.1', icon: 'pi pi-fw pi-bookmark' },
-                                { label: 'Submenu 2.2.2', icon: 'pi pi-fw pi-bookmark' }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            label: 'Get Started',
-            items: [
-                { label: 'Documentation', icon: 'pi pi-fw pi-question', command: () => { window.location = "#/documentation" } },
-                { label: 'View Source', icon: 'pi pi-fw pi-search', command: () => { window.location = "https://github.com/primefaces/sakai-react" } }
-            ]
-        }
+        } 
     ];
 
     const addClass = (element, className) => {
@@ -276,7 +211,7 @@ const App = () => {
 
             <div className="layout-main-container">
                 <div className="layout-main">
-                    <Route path="/chart" render={() => <ChartDemo colorMode={layoutColorMode} />} />
+                     
                     {/*  De TPP */}
                     <Route path="/operations" component={Operations} />
                     <Route path="/users" component={Users} />

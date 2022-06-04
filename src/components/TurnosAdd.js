@@ -3,24 +3,24 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { default as React, useEffect, Fragment, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AddEsquemas } from '../redux/compositionsducks';
-import { EmpleadoService } from '../service/EmpleadoService';
+import { AddEsquemas } from '../redux/compositionsducks'; 
 import { Dropdown } from 'primereact/dropdown';
 import { messageService } from '../redux/messagesducks';
+import { CompositionService } from '../service/CompositionService';
 
-const EsquemaAdd = () => {
-    const empleadoService = new EmpleadoService();
+const TurnosAdd = () => {
+    const compositionService = new CompositionService();
     const activo = useSelector(store => store.users.activo);
 
     const [model, setModel] = useState([]);
     const [display, setDisplay] = useState(false);
-    const [ciudades, setCiudades] = useState([]);
+    const [esquemas, setEsquemas] = useState([]);
 
     const dispatch = useDispatch()
 
-    const fetchCiudades = async () => {
-        await empleadoService.getCiudades().then(data => {
-            setCiudades(data);
+    const fetchEsquemas = async () => {
+        await compositionService.getEsquemas().then(data => {
+            setEsquemas(data);
         }).catch((error) => dispatch(messageService(false, error.response.data.message, error.response.status)));
 
     }
@@ -28,7 +28,7 @@ const EsquemaAdd = () => {
     const onSubmit = (e) => {
         e.preventDefault();
         let data = { ...model };
-        dispatch(AddEsquemas(data));
+        dispatch(AddTurno(data));
         setModel([]);
         setDisplay(false);
     }
@@ -41,13 +41,13 @@ const EsquemaAdd = () => {
 
     useEffect(() => {
         if (activo & display) {
-            fetchCiudades();
+            fetchEsquemas();
         }
     }, [activo, display]);
 
     return <>
-        <Button icon="pi pi-plus" label="Esquemas" onClick={() => setDisplay(true)} className="p-button-info"></Button>
-        <Dialog header="Esquemas" className="card p-fluid" visible={display} style={{ width: '30vw' }} modal onHide={() => setDisplay(false)}>
+        <Button icon="pi pi-plus" label="Turnos" onClick={() => setDisplay(true)} className="p-button-info"></Button>
+        <Dialog header="Turnos" className="card p-fluid" visible={display} style={{ width: '30vw' }} modal onHide={() => setDisplay(false)}>
             <Fragment>
                 <form className="field grid" onSubmit={onSubmit}>
                     <div className="formgroup-inline">
@@ -69,4 +69,4 @@ const EsquemaAdd = () => {
     </>
 };
 
-export default EsquemaAdd;
+export default TurnosAdd;

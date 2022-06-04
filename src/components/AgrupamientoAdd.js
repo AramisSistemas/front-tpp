@@ -26,7 +26,7 @@ const AgrupamientoAdd = () => {
     }
 
     return <>
-        <Button icon="pi pi-plus" label="Agregar" onClick={() => setDisplay(true)} className="p-button-help"></Button>
+        <Button icon="pi pi-plus" label="Agrupamientos" onClick={() => setDisplay(true)} className="p-button-help"></Button>
         <Dialog header="Agrupamiento" className="card p-fluid" visible={display} style={{ width: '30vw' }} modal onHide={() => setDisplay(false)}>
             <Fragment>
                 <form className="field grid" onSubmit={onSubmit}>
